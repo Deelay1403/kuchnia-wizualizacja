@@ -40,7 +40,7 @@
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:14px;overflow:hidden}
 #app{position:relative;height:100%;width:100%}
-#c{display:block;width:100%;height:100%;touch-action:none;outline:none;cursor:grab}
+#c{display:block;width:100%;height:100%;touch-action:none;outline:none;cursor:grab;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #c.drag{cursor:grabbing}
 #c.hot{cursor:pointer}
 
@@ -102,7 +102,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 details{border-top:1px solid var(--line);padding-top:10px}
 summary{cursor:pointer;font-weight:700;font-size:13px}
 .list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-.wall h3{margin:0 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.wall h2{margin:0 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .wall ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}
 .wall li{display:grid;grid-template-columns:1fr auto;gap:8px;font-size:12.5px;line-height:1.35}
 .wall li span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -122,21 +122,26 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.18);
   padding:12px;display:flex;flex-direction:column;gap:10px}
+#swap:not([hidden]){animation:sw-in .18s cubic-bezier(.16,1,.3,1)}
+@keyframes sw-in{from{opacity:0;transform:translateY(4px) scale(.98)}}
 .sw-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.sw-head b{font-family:var(--font-display);font-size:16px;line-height:1.2;display:block;margin-top:2px}
-.sw-x{padding:2px 9px;font-size:16px;line-height:1.2}
+.sw-head b{font-family:var(--font-display);font-size:17px;line-height:1.2;display:block}
+.sw-sub{display:block;margin-top:2px;font-size:12.5px;color:var(--muted)}
+.sw-x{width:32px;height:32px;padding:0;display:grid;place-items:center;flex:none}
+.sw-x svg{width:14px;height:14px}
 .sw-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .sw-opts button{font:inherit;color:var(--fg);background:var(--chip);border:1px solid transparent;border-radius:10px;
   padding:8px 6px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
 .sw-opts button:hover{border-color:var(--line)}
 .sw-opts button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .sw-opts svg{width:44px;height:52px;display:block}
-.sw-opts .nm{font-size:12px;font-weight:700;line-height:1.2}
-.sw-opts .q{font-size:12px;font-weight:600;opacity:.8}
+.sw-opts .nm{font-size:13px;font-weight:700;line-height:1.25}
+.sw-opts .nm small{display:block;font-size:12px;font-weight:500}
+.sw-opts .q{margin-top:auto;font-size:12px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--chip)}
+.sw-opts button[aria-pressed="true"] .q{background:rgba(255,255,255,.16)}
 .sw-note{margin:0;font-size:12px;color:var(--muted);line-height:1.4}
 @media (max-width:720px){
-  #swap{left:max(10px, env(safe-area-inset-left,0px))!important;right:max(10px, env(safe-area-inset-right,0px));
-    top:calc(10px + env(safe-area-inset-top,0px))!important;width:auto}
+  #swap{left:max(10px, env(safe-area-inset-left,0px))!important;right:max(10px, env(safe-area-inset-right,0px));width:auto}
 }
 #loading{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-size:18px;color:var(--muted);pointer-events:none}
 
@@ -148,7 +153,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
   h1{font-size:18px}
   #hint{display:none}
 }
-@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto} }
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto} #swap:not([hidden]){animation:none} }
 </style>
 
 </head>
@@ -214,13 +219,13 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
     </div>
 
     <div class="more sect">
-      <p class="tip">Kliknij front, żeby otworzyć drzwiczki lub wysunąć szufladę. Przy szafkach z kilkoma wariantami pojawi się okienko, w którym zamienisz szafkę na inną. <button class="btn" id="closeAll" style="padding:3px 9px;font-size:12px">Zamknij wszystkie</button></p>
+      <p class="tip">Kliknij front, żeby otworzyć drzwiczki lub wysunąć szufladę. Prawym przyciskiem (na telefonie: przytrzymaj palec) zamienisz szafkę na inny wariant. <button class="btn" id="closeAll" style="padding:3px 9px;font-size:12px">Zamknij wszystkie</button></p>
     </div>
 
     <details class="more">
       <summary>Lista szafek i uwagi</summary>
       <div class="list">
-        <div class="wall"><h3>Ściana ze zlewem (od narożnika)</h3><ul>
+        <div class="wall"><h2>Ściana ze zlewem (od narożnika)</h2><ul>
           <li data-slot="b0"></li>
           <li data-slot="b1"></li>
           <li data-slot="b2"></li>
@@ -231,16 +236,16 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
           <li class="chg"><span>Opcja: szafka nad okapem (zapytać)</span><span>60 × 24</span></li>
           <li><span>Górna 2 drzwi ×3</span><span>60 × 60</span></li>
         </ul></div>
-        <div class="wall"><h3>Ściana z oknem</h3><ul>
+        <div class="wall"><h2>Ściana z oknem</h2><ul>
           <li data-slot="a0"></li>
           <li data-slot="a1"></li>
           <li class="chg"><span>Blat przedłużony do narożnika</span><span>2,78 m</span></li>
         </ul></div>
-        <div class="wall"><h3>Ściana z wejściem</h3><ul>
+        <div class="wall"><h2>Ściana z wejściem</h2><ul>
           <li><span>Słupek piekarnik + mikrofala</span><span>60 × 217</span></li>
           <li><span>Lodówka (Twoja)</span><span>60</span></li>
         </ul></div>
-        <div class="wall"><h3>Wykończenie</h3><ul>
+        <div class="wall"><h2>Wykończenie</h2><ul>
           <li><span>Ściana i podłoga: wybór w sekcji „Wykończenie z Castoramy”</span><span></span></li>
         </ul></div>
       </div>
@@ -260,8 +265,8 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
 
   <div id="swap" role="dialog" aria-labelledby="swTitle" hidden>
     <div class="sw-head">
-      <div><div class="eyebrow" id="swWall"></div><b id="swTitle"></b></div>
-      <button class="btn sw-x" id="swClose" type="button" aria-label="Zamknij">×</button>
+      <div><b id="swTitle"></b><span class="sw-sub" id="swWall"></span></div>
+      <button class="btn sw-x" id="swClose" type="button" aria-label="Zamknij"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
     </div>
     <div class="sw-opts" id="swOpts"></div>
     <p class="sw-note">Tylko warianty z oferty hurtowni: nie ma szuflad w 80 cm, szafek z 1 lub 4 szufladami ani szafki pod ociekacz.</p>
@@ -795,11 +800,11 @@ function top(parent, w, h, d, x, y, z){ const m = B(parent, w, h, d, TOPS.oak, x
 /* ---------- szafki wymienne (klik → zamień) ----------
    Warianty tylko z oferty hurtowni (mail #193350): brak szuflad w 80 cm, brak szafek z 1 i 4 szufladami, brak szafki pod ociekacz. */
 const TYPES = {
-  d2: { name: '2 drzwi' },
-  d1L: { name: '1 drzwi, zawias z lewej' },
-  d1R: { name: '1 drzwi, zawias z prawej' },
-  dr3: { name: '3 szuflady' },
-  dr3x2: { name: '2 × D40 z 3 szufladami' },
+  d2: { name: '2 drzwi', short: '2 drzwi' },
+  d1L: { name: '1 drzwi, zawias z lewej', short: '1 drzwi', detail: 'zawias z lewej' },
+  d1R: { name: '1 drzwi, zawias z prawej', short: '1 drzwi', detail: 'zawias z prawej' },
+  dr3: { name: '3 szuflady', short: '3 szuflady' },
+  dr3x2: { name: '2 × D40 z 3 szufladami', short: '2 × D40', detail: 'po 3 szuflady' },
 };
 const slots = [];
 const savedCabs = (() => {
@@ -1280,17 +1285,31 @@ function finish(v, to){
 const hint = document.getElementById('hint');
 function updateHint(){
   hint.innerHTML = mode === 'eye'
-    ? '<b>Przeciągnij</b> – rozejrzyj się · <b>W A S D</b> / strzałki – chodzenie · <b>kółko</b> – szerszy kadr · <b>klik w szafkę</b> – otwórz / zamień'
-    : '<b>Przeciągnij</b> – obróć makietę · <b>kółko</b> – przybliż · <b>klik w szafkę</b> – otwórz / zamień';
+    ? '<b>Przeciągnij</b> – rozejrzyj się · <b>W A S D</b> / strzałki – chodzenie · <b>kółko</b> – szerszy kadr · <b>klik</b> – otwórz · <b>prawy przycisk</b> – zamień szafkę'
+    : '<b>Przeciągnij</b> – obróć makietę · <b>kółko</b> – przybliż · <b>klik</b> – otwórz · <b>prawy przycisk</b> – zamień szafkę';
 }
 
 // wskaźnik: przeciąganie vs klik
 let down = null;
-canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, moved: false }; canvas.setPointerCapture(e.pointerId); canvas.classList.add('drag'); });
+// prawy przycisk (na dotyku: przytrzymanie) – zamiana szafki
+const LONG_PRESS = 500;
+canvas.addEventListener('pointerdown', e => {
+  down = { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, moved: false, touch: e.pointerType === 'touch', long: false };
+  canvas.setPointerCapture(e.pointerId); canvas.classList.add('drag');
+  if (down.touch){
+    const d = down, ev = { clientX: e.clientX, clientY: e.clientY };
+    d.timer = setTimeout(() => { if (down === d && !d.moved){ d.long = true; swapAt(ev); } }, LONG_PRESS);
+  }
+});
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  if (down && down.long) return;   // przytrzymanie już otworzyło okienko
+  swapAt(e);
+});
 canvas.addEventListener('pointermove', e => {
   if (down){
     const dx = e.clientX - down.lx, dy = e.clientY - down.ly;
-    if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) down.moved = true;
+    if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > (down.touch ? 10 : 5)){ down.moved = true; clearTimeout(down.timer); }
     if (mode === 'eye' && !anim){
       yaw += dx * .0042; pitch += dy * .0042;
       pitch = Math.max(-1.3, Math.min(1.3, pitch));
@@ -1302,9 +1321,10 @@ canvas.addEventListener('pointermove', e => {
 });
 canvas.addEventListener('pointerup', e => {
   canvas.classList.remove('drag');
-  if (down && !down.moved) click(e);
+  if (down){ clearTimeout(down.timer); if (!down.moved && !down.long && e.button === 0) click(e); }
   down = null;
 });
+canvas.addEventListener('pointercancel', () => { if (down) clearTimeout(down.timer); down = null; canvas.classList.remove('drag'); });
 canvas.addEventListener('pointerleave', () => { tipEl.hidden = true; });
 canvas.addEventListener('wheel', e => {
   if (mode !== 'eye') return;
@@ -1339,14 +1359,17 @@ function hover(e){
     const r = app.getBoundingClientRect();
     let x = e.clientX - r.left, y = e.clientY - r.top;
     tipEl.style.left = Math.min(x, r.width - tipEl.offsetWidth - 20) + 'px'; tipEl.style.top = y + 'px';
-    if (h.object.userData.slot) tipEl.textContent += ' · klik: zamień';
+    if (h.object.userData.slot) tipEl.textContent += ' · prawy przycisk: zamień';
     canvas.classList.toggle('hot', !!(h.object.userData.part || h.object.userData.slot));
   } else { tipEl.hidden = true; canvas.classList.remove('hot'); }
 }
 function click(e){
   const h = pick(e);
   if (h && h.object.userData.part){ const p = h.object.userData.part; p.target = p.target ? 0 : 1; }
-  const s = h && h.object.userData.slot;
+  if (selSlot && (!h || h.object.userData.slot !== selSlot)) hideSwap();
+}
+function swapAt(e){
+  const h = pick(e), s = h && h.object.userData.slot;
   if (s) showSwap(s, e); else hideSwap();
 }
 document.getElementById('closeAll').onclick = () => parts.forEach(p => p.target = 0);
@@ -1371,18 +1394,25 @@ function typeIcon(t, kind){
 }
 function paintSwap(){
   const s = selSlot;
-  document.getElementById('swWall').textContent = s.parent === runA ? 'Ściana z oknem' : 'Ściana ze zlewem';
+  document.getElementById('swWall').textContent = (s.parent === runA ? 'Ściana z oknem' : 'Ściana ze zlewem') + (s.kind === 'wall' ? ' · szafka górna' : ' · szafka dolna');
   document.getElementById('swTitle').textContent = `${slotCode(s)} ${s.where}`;
-  swOpts.innerHTML = s.opts.map(t => `<button type="button" data-t="${t}" aria-pressed="${t === s.type}">${typeIcon(t, s.kind)}<span class="nm">${TYPES[t].name}</span>${t === s.quote ? '<span class="q">jak w wycenie</span>' : ''}</button>`).join('');
+  swOpts.innerHTML = s.opts.map(t => `<button type="button" data-t="${t}" aria-pressed="${t === s.type}">${typeIcon(t, s.kind)}<span class="nm">${TYPES[t].short}${TYPES[t].detail ? `<small>${TYPES[t].detail}</small>` : ''}</span>${t === s.quote ? '<span class="q">jak w wycenie</span>' : ''}</button>`).join('');
   selBox.box.setFromObject(s.group); selBox.visible = true;
 }
 function showSwap(s, e){
-  selSlot = s; paintSwap(); swapEl.hidden = false;
+  selSlot = s; paintSwap(); swapEl.hidden = false; tipEl.hidden = true;
   const r = app.getBoundingClientRect(), w = swapEl.offsetWidth, h = swapEl.offsetHeight;
+  if (matchMedia('(max-width:720px)').matches){
+    // telefon: pełna szerokość, po przeciwnej stronie ekranu niż palec, żeby nie zasłaniać szafki
+    const pTop = panel.getBoundingClientRect().top - r.top;
+    swapEl.style.top = (e.clientY - r.top < r.height / 2 ? Math.max(10, pTop - h - 10) : 10) + 'px';
+    return;
+  }
   let x = e.clientX - r.left + 18, y = e.clientY - r.top - 24;
   if (x + w > r.width - 16) x = e.clientX - r.left - w - 18;
   swapEl.style.left = Math.max(16, x) + 'px';
-  swapEl.style.top = Math.max(16, Math.min(y, r.height - h - 16)) + 'px';
+  const bottom = hint.offsetParent ? r.bottom - hint.getBoundingClientRect().top + 8 : 16;   // nie zasłaniaj podpowiedzi na dole
+  swapEl.style.top = Math.max(16, Math.min(y, r.height - h - bottom)) + 'px';
 }
 function hideSwap(){ swapEl.hidden = true; selSlot = null; selBox.visible = false; }
 swOpts.addEventListener('click', e => {
