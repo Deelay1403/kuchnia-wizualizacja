@@ -79,6 +79,19 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .seg button{padding:5px 10px;font-size:12.5px}
 .tip{font-size:12.5px;color:var(--muted);line-height:1.45;margin:0}
 .fin{display:flex;flex-direction:column;gap:5px}
+.fin .fl{font-size:12.5px;font-weight:700}
+.dd{min-width:0}
+.dd-btn{width:100%;display:flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;color:var(--fg);background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:4px 8px;cursor:pointer;text-align:left}
+.dd-btn img{width:30px;height:30px;border-radius:4px;flex:none;object-fit:cover;background:var(--line)}
+.dd-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.dd-list{grid-column:1 / -1;margin:4px 0 0;padding:4px;list-style:none;border:1px solid var(--line);border-radius:10px;max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:2px}
+.dd-list li{display:grid;grid-template-columns:56px 1fr;gap:9px;align-items:center;padding:5px;border-radius:7px;cursor:pointer}
+.dd-list li:hover,.dd-list li[aria-selected="true"]{background:var(--chip)}
+.dd-list li[aria-selected="true"]{outline:2px solid var(--accent);outline-offset:-2px}
+.dd-list img{width:56px;height:56px;border-radius:5px;object-fit:cover}
+.dd-list b{display:block;font-size:12.5px;line-height:1.25}
+.dd-list small{display:block;color:var(--muted);font-size:11.5px;line-height:1.3}
+
 .fin label{font-size:12.5px;font-weight:700}
 .pick{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center}
 .pick select{min-width:0;width:100%;font:inherit;font-size:12.5px;color:var(--fg);background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
@@ -123,7 +136,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
   <aside id="panel" class="collapsed" aria-label="Ustawienia wizualizacji">
     <div class="head">
       <div>
-        <div class="eyebrow">Kuchnia 3,08 × 2,78 m · Blande · wersja 7</div>
+        <div class="eyebrow">Kuchnia 3,08 × 2,78 m · Blande · wersja 8</div>
         <h1>Butelkowa zieleń z dębem</h1>
       </div>
       <button class="btn" id="toggle" aria-expanded="false">Opcje</button>
@@ -139,7 +152,8 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
       <span class="lab">Warianty</span>
       <div class="row"><span class="lab">Nad okapem</span>
         <div class="seg" data-key="hood">
-          <button id="hood-none" data-v="none" aria-pressed="true">Przerwa pod szafką</button>
+          <button id="hood-none" data-v="none" aria-pressed="true">Góra w linii</button>
+          <button id="hood-low" data-v="low" aria-pressed="false">Dół w linii</button>
           <button id="hood-cab" data-v="cab" aria-pressed="false">Szafka 60 × 24</button>
         </div></div>
       <div class="row"><span class="lab">Blat</span>
@@ -163,13 +177,13 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
     <div class="more sect">
       <span class="lab">Wykończenie z Castoramy</span>
       <div class="fin">
-        <label for="wallSel">Ściana (kafle pod panelami)</label>
-        <div class="pick"><button class="btn step" data-step="wallFin" data-dir="-1" aria-label="Poprzedni panel ścienny">‹</button><select id="wallSel"></select><button class="btn step" data-step="wallFin" data-dir="1" aria-label="Następny panel ścienny">›</button></div>
+        <span class="fl">Ściana (tylko w miejscu kafli)</span>
+        <div class="pick"><button class="btn step" data-step="wallFin" data-dir="-1" aria-label="Poprzedni panel ścienny">‹</button><div class="dd" id="wallDD"><button class="dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><img alt=""><span class="dd-name"></span><span aria-hidden="true">▾</span></button><ul class="dd-list" role="listbox" hidden></ul></div><button class="btn step" data-step="wallFin" data-dir="1" aria-label="Następny panel ścienny">›</button></div>
         <div class="info" id="wallInfo"></div>
       </div>
       <div class="fin">
-        <label for="floorSel">Podłoga</label>
-        <div class="pick"><button class="btn step" data-step="floorFin" data-dir="-1" aria-label="Poprzednia podłoga">‹</button><select id="floorSel"></select><button class="btn step" data-step="floorFin" data-dir="1" aria-label="Następna podłoga">›</button></div>
+        <span class="fl">Podłoga</span>
+        <div class="pick"><button class="btn step" data-step="floorFin" data-dir="-1" aria-label="Poprzednia podłoga">‹</button><div class="dd" id="floorDD"><button class="dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><img alt=""><span class="dd-name"></span><span aria-hidden="true">▾</span></button><ul class="dd-list" role="listbox" hidden></ul></div><button class="btn step" data-step="floorFin" data-dir="1" aria-label="Następna podłoga">›</button></div>
         <div class="info" id="floorInfo"></div>
       </div>
     </div>
@@ -206,15 +220,15 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
         </ul></div>
       </div>
       <ul class="notes">
-        <li>Ze zdjęć odtworzyłem rury pod sufitem (wzdłuż okna, nad dawną kuchenką do ok. 1,2 m i na ścianie przy stole), pion w narożniku, rury grzewcze przy podłodze, kratkę w suficie i trzy pola kafli. Położenia są orientacyjne, ok. ±20–30 cm.</li>
-        <li>Panele ścienne przykrywają kafle i pas między blatem a szafkami na całej długości. To ok. 4,1 m².</li>
+        <li>Ze zdjęć odtworzyłem rury pod sufitem (wzdłuż okna, nad dawną kuchenką do ok. 1,2 m i na ścianie przy stole), pion w narożniku, rury grzewcze przy podłodze, kratkę w suficie i trzy pola kafli (łata kafli jest na ścianie z wejściem, za lodówką i częścią słupka). Położenia są orientacyjne, ok. ±20–30 cm.</li>
+        <li>Panele ścienne idą wyłącznie tam, gdzie dziś są kafle, razem ok. 3,4 m². Łata za lodówką i słupkiem (ok. 0,7 m²) po zabudowie będzie niewidoczna. Pas nad dawnym zlewem kończy się na wysokości 1,5 m, więc do szafek górnych zostaje ok. 7 cm ściany, a od ok. 2,45 m do łuku ściana zostaje malowana.</li>
         <li>Tekstury paneli są poglądowe, kolory wziąłem ze zdjęć produktów. Ceny z Castoramy z 16.11.2026.</li>
         <li>Blat spod okna idzie aż do narożnika nad kaloryferem i łączy się z blatem przy zlewie. Płyta stoi poza narożnikiem, z ok. 70 cm blatu po lewej.</li>
         <li>D40 z 3 szufladami stoi w narożniku, 26 cm od ściany z oknem. Szuflady wysuwają się pod przedłużony blat, więc otwiera się je trudniej. Kaloryfer im nie przeszkadza.</li>
         <li>Zlew i zmywarka zostają przy łuku, blisko dzisiejszych podejść wody.</li>
         <li>Okno, parapet i kaloryfer są przeniesione ze zdjęcia, w proporcjach do ściany 2,78 m: okno ok. 1,75 × 1,40 m, parapet przez całą ścianę ok. 1,03 m nad podłogą. Warto to sprawdzić miarką.</li>
-        <li>W blacie nad kaloryferem jest kratka, żeby ciepło miało ujście.</li>
-        <li>Okap to pochłaniacz (filtr węglowy) wbudowany w szafkę okapową 36 cm. Szafka wisi w górnej linii, a przerwa 24 cm jest pod nią, więc okap jest ok. 95 cm nad płytą (producenci zwykle podają 50–75 cm). Opcja „Szafka 60 × 24” obniża okapową do linii dolnej i dokłada nad nią małą szafkę, którą trzeba potwierdzić w sklepie.</li>
+        <li>W blacie nad kaloryferem jest kratka przy samej ścianie, pod parapetem, żeby ciepło szło w stronę okna.</li>
+        <li>Okap to pochłaniacz (filtr węglowy) wbudowany w szafkę okapową 36 cm. Masz trzy ustawienia: „Góra w linii” (okap ok. 95 cm nad płytą, przerwa 24 cm pod szafką), „Dół w linii” (okap ok. 71 cm nad płytą, wolne 24 cm nad szafką) oraz „Szafka 60 × 24” (dół w linii i mała szafka nad nią, do potwierdzenia w sklepie).</li>
       </ul>
     </details>
   </aside>
@@ -653,17 +667,7 @@ wall(W, L, Math.PI, W, null, null, new THREE.Vector3(0, 0, -1));
   // gniazdko nad parapetem
   B(g, .08, .08, .02, M.white, 2.55, 1.12, 0);
 }
-// korytarz za łukiem
-{
-  const g = wallC;
-  const hall = new THREE.Group(); g.add(hall);
-  const fl = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), std({ color: 0xcdb99a, roughness: .6 })); fl.rotation.x = -Math.PI / 2; fl.position.set(ARC, .001, -1.0); fl.receiveShadow = true; hall.add(fl);
-  B(hall, 2.2, CH, .05, M.wallHall, ARC - 1.08, 0, -1.65);
-  B(hall, .05, CH, 1.5, M.wallHall, ARC - .83, 0, -1.65); B(hall, .05, CH, 1.5, M.wallHall, ARC + .82, 0, -1.65);
-  B(hall, 2.2, .05, 1.6, M.ceiling, ARC - 1.08, CH, -1.65);
-  // listwa progowa
-  B(hall, .9, .006, .25, M.steelD, AR0, 0, -.25, false);
-}
+// (przedpokój budowany niżej, po podłodze kuchni)
 // podłoga, sufit, lampa
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, L), M.floor);
 floor.rotation.x = -Math.PI / 2; floor.position.set(W / 2, 0, L / 2); floor.receiveShadow = true; scene.add(floor);
@@ -673,6 +677,82 @@ const ceilG = new THREE.Group(); scene.add(ceilG);
   c.rotation.x = Math.PI / 2; c.position.set(W / 2, CH, L / 2); c.receiveShadow = true; c.castShadow = true; ceilG.add(c);
   const lamp = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .05, 48), M.lamp);
   lamp.position.set(W / 2, CH - .025, L / 2); ceilG.add(lamp);
+}
+
+// przedpokój za łukiem (wg zdjęcia wejścia do kuchni)
+const hallG = new THREE.Group(); scene.add(hallG);
+const HX0 = W + .25, HX1 = W + 3.4, HZ0 = -2.75, HZ1 = 2.45;
+const hallCeil = [];
+const M_hallFloor = (() => { const t = canvasTex(2048, 2048, (g, w, h) => drawFloor(g, w, h, rng(5))); t.repeat.set((HX1 - W) / 2.4, (HZ1 - HZ0) / 2.4); return std({ map: t, roughness: .6 }); })();  // jasna deska jak dziś
+const M_olive = std({ color: 0x6f6b3e, roughness: .92 });
+const M_wenge = std({ color: 0x2b2420, roughness: .5 });
+const M_wenge2 = std({ color: 0x231d1a, roughness: .35, metalness: .1 });
+const M_stair = std({ map: oakTex, color: 0x6e4a30, roughness: .6 });
+const M_stairD = std({ map: oakTex, color: 0x523523, roughness: .65 });
+function hplane(w, h, mat, pos, rotY, rotX, list){
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
+  m.position.set(...pos); if (rotX) m.rotation.x = rotX; else m.rotation.y = rotY;
+  m.receiveShadow = true; hallG.add(m); if (list) list.push(m); return m;
+}
+// podłoga i ściany (płaszczyzny zwrócone do środka: z makiety ich nie widać)
+hplane(HX1 - W, HZ1 - HZ0, M_hallFloor, [(W + HX1) / 2, .001, (HZ0 + HZ1) / 2], 0, -Math.PI / 2);
+hplane(-.25 - HZ0, CH, M.wall, [HX0, CH / 2, (HZ0 - .25) / 2], Math.PI / 2);
+hplane(HX1 - HX0, CH, M.wall, [(HX0 + HX1) / 2, CH / 2, HZ1], Math.PI);
+hplane(HZ1 - HZ0, CH, M.wall, [HX1, CH / 2, (HZ0 + HZ1) / 2], -Math.PI / 2);
+hplane(HX1 - HX0, CH, M.wall, [(HX0 + HX1) / 2, CH / 2, HZ0], 0);
+// sufit z otworem nad schodami
+const SX0 = HX0 + .1, SX1 = W + 2.75, SZ0 = 1.57, SZ1 = 2.35, OX0 = W + 1.95, OX1 = W + 2.85;
+hplane(HX1 - HX0, SZ0 - HZ0, M.ceiling, [(HX0 + HX1) / 2, CH, (HZ0 + SZ0) / 2], 0, Math.PI / 2, hallCeil);
+hplane(OX0 - HX0, HZ1 - SZ0, M.ceiling, [(HX0 + OX0) / 2, CH, (SZ0 + HZ1) / 2], 0, Math.PI / 2, hallCeil);
+hplane(HX1 - OX1, HZ1 - SZ0, M.ceiling, [(OX1 + HX1) / 2, CH, (SZ0 + HZ1) / 2], 0, Math.PI / 2, hallCeil);
+hplane(OX1 - OX0, HZ1 - SZ0, std({ color: 0x3a3632, roughness: 1 }), [(OX0 + OX1) / 2, CH + .6, (SZ0 + HZ1) / 2], 0, Math.PI / 2, hallCeil);
+{
+  const lamp = new THREE.Mesh(new THREE.CylinderGeometry(.18, .18, .05, 40), M.lamp); lamp.position.set(W + 1.5, CH - .025, -.5); hallG.add(lamp); hallCeil.push(lamp);
+}
+const hallLight = new THREE.PointLight(0xfff0dd, 2.2, 0, 2); hallLight.position.set(W + 1.5, CH - .15, -.5); scene.add(hallLight);
+// ściana akcentowa: dziś ciemnozielona, docelowo oliwkowa
+{
+  const m = hplane(1.93, 2.30, M_olive, [HX0 + .003, .1 + 1.15, (.38 - 1.55) / 2], Math.PI / 2);
+  m.userData.label = 'Ściana akcentowa – oliwkowa (dziś ciemnozielona)'; pickables.push(m);
+}
+// obrazy i panele z mchu
+const mossTex = canvasTex(256, 256, (g, w, h) => { const r = rng(31); g.fillStyle = '#2d5622'; g.fillRect(0, 0, w, h); for (let i = 0; i < 2600; i++){ g.fillStyle = `hsl(${80 + r() * 45},${40 + r() * 30}%,${16 + r() * 32}%)`; g.beginPath(); g.ellipse(r() * w, r() * h, 2 + r() * 5, 1 + r() * 3, r() * 3, 0, 7); g.fill(); } });
+const flowersTex = (seed) => canvasTex(256, 256, (g, w, h) => { const r = rng(seed); const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#1d474b'); gr.addColorStop(1, '#2f6c60'); g.fillStyle = gr; g.fillRect(0, 0, w, h); for (let i = 0; i < 45; i++){ g.fillStyle = `rgba(${190 + r() * 60 | 0},${60 + r() * 60 | 0},${150 + r() * 70 | 0},${.3 + r() * .4})`; g.beginPath(); g.ellipse(r() * w, r() * h, 6 + r() * 18, 4 + r() * 12, r() * 3, 0, 7); g.fill(); } });
+const printTex = canvasTex(256, 320, (g, w, h) => { g.fillStyle = '#3f8a3a'; g.fillRect(0, 0, w, h); g.fillStyle = '#f3efe6'; g.fillRect(10, 10, w - 20, h - 20); g.fillStyle = '#a8452c'; g.fillRect(40, 42, w - 80, h - 84); g.fillStyle = '#2b1610'; g.beginPath(); g.ellipse(w / 2, h * .33, 13, 17, 0, 0, 7); g.fill(); g.fillStyle = '#c51e2a'; g.beginPath(); g.moveTo(w / 2, h * .4); g.lineTo(w * .28, h * .8); g.lineTo(w * .76, h * .78); g.fill(); });
+function wallArt(map, z0, z1, y0, y1, depth, text){
+  const front = std({ map, roughness: .85 });
+  const m = new THREE.Mesh(new THREE.BoxGeometry(depth, y1 - y0, z0 - z1), [front, M.white, M.white, M.white, M.white, M.white]);
+  m.position.set(HX0 + depth / 2, (y0 + y1) / 2, (z0 + z1) / 2); m.castShadow = true; hallG.add(m);
+  m.userData.label = text; pickables.push(m);
+}
+wallArt(flowersTex(41), .30, -.05, 1.40, 1.95, .03, 'Obraz (ze zdjęcia)');
+wallArt(flowersTex(43), .30, -.05, .80, 1.28, .03, 'Obraz (ze zdjęcia)');
+wallArt(mossTex, -.12, -.57, 1.45, 1.95, .05, 'Panel z mchu (ze zdjęcia)');
+wallArt(printTex, -.20, -.62, .72, 1.30, .025, 'Grafika w ramie (ze zdjęcia)');
+wallArt(mossTex, -.75, -1.35, .68, 2.05, .05, 'Panel z mchu (ze zdjęcia)');
+// szafa przesuwna
+{
+  const g = new THREE.Group(); hallG.add(g);
+  B(g, .6, 2.35, 1.03, M_wenge, HX0, 0, -2.65);
+  B(g, .02, 2.28, .53, M_wenge2, HX0 + .6, .035, -2.64);
+  B(g, .02, 2.28, .53, M_wenge2, HX0 + .625, .035, -2.13);
+  [-2.64, -2.115, -1.61].forEach(z => B(g, .03, 2.28, .015, M.steelD, HX0 + .6, .035, z));
+  label(g, 'Szafa przesuwna (ze zdjęcia)');
+}
+// schody drewniane (ażurowe) na górę, start przy łuku
+{
+  const g = new THREE.Group(); hallG.add(g);
+  const N = 12, rise = CH / (N + 1), run = (SX1 - SX0) / N;
+  for (let i = 0; i < N; i++) B(g, run + .05, .045, SZ1 - SZ0, M_stair, SX0 + i * run, (i + 1) * rise - .045, SZ0);
+  const len = Math.hypot(SX1 - SX0, CH), ang = Math.atan2(CH, SX1 - SX0);
+  [SZ0 - .05, SZ1].forEach(z => { const s = new THREE.Mesh(new THREE.BoxGeometry(len, .26, .05), M_stairD); s.position.set((SX0 + SX1) / 2, CH / 2 - .03, z + .025); s.rotation.z = ang; s.castShadow = true; g.add(s); });
+  const rail = new THREE.Mesh(new THREE.BoxGeometry(len * .85, .05, .05), M_stairD); rail.position.set((SX0 + SX1) / 2 - .1, CH / 2 + .82, SZ0 - .08); rail.rotation.z = ang; g.add(rail);
+  B(g, .07, 1.05, .07, M_stairD, SX0 - .02, 0, SZ0 - .12);
+  // zabudowa pod schodami z żaluzjowymi drzwiczkami
+  B(g, SX1 - (W + 1.9), 1.35, SZ1 - SZ0, M_stairD, W + 1.9, 0, SZ0);
+  B(g, .52, 1.1, .02, M_stair, W + 2.08, .12, SZ0 - .02);
+  for (let i = 0; i < 16; i++) B(g, .42, .022, .012, M_stairD, W + 2.13, .2 + i * .06, SZ0 - .03);
+  label(g, 'Schody drewniane na górę + schowek pod schodami (ze zdjęcia)');
 }
 
 /* ---------- zabudowa ściany ze zlewem (dwa układy) ---------- */
@@ -687,7 +767,7 @@ function dishwasher(g0, x){
   B(g, .594, .096, T, M.oakH, .001, 0, .42);
   label(g, 'Zmywarka do zabudowy + front 60 (z oferty)');
 }
-const hoodVariants = { none: [], cab: [] };
+const hoodVariants = { none: [], low: [], cab: [] };
 function hoodInside(g){
   // okap do zabudowy (pochłaniacz) w dole szafki okapowej
   B(g, .56, .2, .26, M.steelD, .02, .03, .02);
@@ -700,7 +780,10 @@ function hoodCab(g0, x, text){
   // wariant 1: szafka okapowa (36 cm) w górnej linii, przerwa pod nią
   const a = new THREE.Group(); g0.add(a); hoodVariants.none.push(a);
   const ga = wallCab(a, x, .60, h, 'flap', text, UT - h); hoodInside(ga); label(ga, text);
-  // wariant 2: szafka okapowa w dolnej linii + dodatkowa szafka 60 × 24 nad nią
+  // wariant 2: szafka okapowa obniżona do dolnej krawędzi pozostałych górnych, nad nią wolne 24 cm
+  const l = new THREE.Group(); g0.add(l); hoodVariants.low.push(l); l.visible = false;
+  const gl = wallCab(l, x, .60, h, 'flap', text, UB); hoodInside(gl); label(gl, text);
+  // wariant 3: szafka okapowa w dolnej linii + dodatkowa szafka 60 × 24 nad nią
   const b = new THREE.Group(); g0.add(b); hoodVariants.cab.push(b); b.visible = false;
   const gb = wallCab(b, x, .60, h, 'flap', text, UB); hoodInside(gb); label(gb, text);
   wallCab(b, x, .60, UT - UB - h, 'flap', 'Szafka 60 × 24 nad okapem (opcja – zapytać w sklepie)', UB + h);
@@ -787,8 +870,8 @@ const runA = frame(scene, 0, 0, L, Math.PI / 2);
 baseCab(runA, 0, .60, 'd2', 'D60 · 2 drzwi');
 baseCab(runA, .60, .80, 'd2', 'D80 · 2 drzwi (zamiast szuflad)');
 top(runA, L, WT, .58, 0, TOP, 0);   // blat spod okna dosunięty do narożnika (przedłużenie nad kaloryferem)
-B(runA, .32, .003, .06, M.black, 1.545, TOP + WT, .31, false);   // kratka w blacie nad kaloryferem
-{ const k = new THREE.Group(); runA.add(k); B(k, .32, .004, .065, M.steelD, 1.54, TOP + WT - .001, .307, false); label(k, 'Kratka w blacie nad kaloryferem'); }
+B(runA, .32, .003, .06, M.black, 1.545, TOP + WT, .025, false);   // kratka w blacie nad kaloryferem
+{ const k = new THREE.Group(); runA.add(k); B(k, .32, .004, .065, M.steelD, 1.54, TOP + WT - .001, .022, false); label(k, 'Kratka w blacie nad kaloryferem – przy ścianie, pod parapetem'); }
 
 // ściana z wejściem
 const runC = frame(scene, W, 0, 0, -Math.PI / 2);
@@ -815,12 +898,14 @@ function applyState(){
   sun.visible = !eve;
   hemi.intensity = eve ? .06 : .55;
   ceilLight.intensity = eve ? 9 : 2.2;
+  hallLight.intensity = eve ? 6 : 1.6;
   M.lamp.emissiveIntensity = eve ? 2.2 : .7;
   skyMat.map = eve ? skyEve : skyDay;
   setEnv(eve ? .22 : .75);
   runNew.userData.leds.visible = state.led === 'on';
   hoodVariants.none.forEach(g => g.visible = state.hood === 'none');
   hoodVariants.cab.forEach(g => g.visible = state.hood === 'cab');
+  hoodVariants.low.forEach(g => g.visible = state.hood === 'low');
   renderer.toneMappingExposure = eve ? 1.15 : 1.0;
 }
 const allMats = new Set();
@@ -860,23 +945,16 @@ function zone(parent, x0, y0, w, h, z, list, text){
   const p = geo.attributes.position, uv = geo.attributes.uv;
   for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i), p.getY(i)); // UV w metrach
   const m = new THREE.Mesh(geo, M.wall); m.receiveShadow = true; parent.add(m); list.push(m);
-  m.userData.label = text; pickables.push(m);
+  m.userData.label = text; m.userData.base = text.replace(/^Kafle: /, ''); pickables.push(m);
   return m;
 }
-const tileZones = [], vinylZones = [];
+const tileZones = [];
 const Y0 = TOP + WT;
-// obecne kafle (ze zdjęć)
-zone(wallB_.g, 0, Y0, 1.20, 2.48 - Y0, .004, tileZones, 'Obecne kafle: pole do sufitu przy oknie (dawniej nad kuchenką)');
-zone(wallB_.g, 1.20, Y0, 1.25, 1.50 - Y0, .004, tileZones, 'Obecne kafle: pas nad dawnym zlewem');
-zone(wallD_.g, .88, .85, 1.0, .80, .004, tileZones, 'Obecne kafle: łata z włącznikiem na ścianie przy stole');
-// panele winylowe: przykrywają kafle + pas do linii szafek górnych
-zone(wallB_.g, 0, Y0, 1.20, 2.48 - Y0, .005, vinylZones, 'Panele ścienne – pole przy oknie (przykrywa kafle)');
-zone(wallB_.g, 1.20, Y0, W - 1.20, UB - Y0, .005, vinylZones, 'Panele ścienne – pas między blatem a szafkami');
-zone(wallD_.g, .88, .85, 1.0, .80, .005, vinylZones, 'Panele ścienne – łata przy stole (przykrywa kafle)');
-const WALL_AREA = 1.20 * (2.48 - Y0) + (W - 1.20) * (UB - Y0) + 1.0 * .80;
-// włącznik na łacie
-B(wallD_.g, .08, .08, .015, M.white, 1.62, 1.45, .006);
-B(wallD_.g, .08, .08, .015, M.white, 1.71, 1.45, .006);
+// obecne kafle (ze zdjęć) – panele winylowe pójdą dokładnie w te miejsca
+zone(wallB_.g, 0, Y0, 1.20, 2.48 - Y0, .004, tileZones, 'Kafle: pole do sufitu przy oknie (dawniej nad kuchenką)');
+zone(wallB_.g, 1.20, Y0, 1.25, 1.50 - Y0, .004, tileZones, 'Kafle: pas nad dawnym zlewem');
+zone(wallC_.g, 1.95, .85, L - 1.95, .80, .004, tileZones, 'Kafle: łata za lodówką i częścią słupka (niewidoczna po zabudowie)');
+const WALL_AREA = 1.20 * (2.48 - Y0) + 1.25 * (1.50 - Y0) + (L - 1.95) * .80;
 // podłoga: UV w metrach
 {
   const p = floor.geometry.attributes.position, uv = floor.geometry.attributes.uv;
@@ -1021,8 +1099,7 @@ function finMat(item, rough){ if (!finMats[item.id]){ const m = std({ map: makeT
 function applyFinishes(){
   const wi = WALLS.find(x => x.id === state.wallFin), fi = FLOORS.find(x => x.id === state.floorFin);
   const isTiles = wi.id === 'kafle';
-  tileZones.forEach(m => { m.visible = isTiles; m.material = finMat(WALLS[0], .5); });
-  vinylZones.forEach(m => { m.visible = !isTiles; if (!isTiles){ m.material = finMat(wi, .75); m.userData.label = wi.name + ' (' + wi.size + ')'; } });
+  tileZones.forEach(m => { m.material = isTiles ? finMat(WALLS[0], .5) : finMat(wi, .75); m.userData.label = (isTiles ? 'Obecne kafle' : wi.name + ' (' + wi.size + ')') + ' – ' + m.userData.base; });
   floor.material = finMat(fi, .6);
   floor.userData.label = fi.name + ' (' + fi.size + ')';
   renderInfo('wallInfo', wi, WALL_AREA);
@@ -1037,19 +1114,31 @@ function renderInfo(id, it, area){
   el.innerHTML = `<b>${it.name}</b><span>${it.size}${it.price ? ' · ' + fmt(it.price) + ' zł/m²' : ''} · ${it.note}</span><span>${cost}</span>` +
     (it.price ? `<a href="https://www.castorama.pl/search?term=${encodeURIComponent(it.name)}" target="_blank" rel="noopener">Zobacz w Castoramie</a>` : '');
 }
-function fillSelect(id, list, key){
-  const s = document.getElementById(id);
-  s.innerHTML = list.map(x => `<option value="${x.id}">${x.name}${x.price ? ' · ' + fmt(x.price) + ' zł/m²' : ''}</option>`).join('');
-  s.value = state[key];
-  s.addEventListener('change', () => { state[key] = s.value; applyFinishes(); });
+function thumb(item){
+  if (item._th) return item._th;
+  const t = makeTex(item.t), src = t.image, c = document.createElement('canvas'); c.width = c.height = 96;
+  const tw = 1 / t.repeat.x, th = 1 / t.repeat.y, span = .7;
+  c.getContext('2d').drawImage(src, 0, 0, src.width * Math.min(1, span / tw), src.height * Math.min(1, span / th), 0, 0, 96, 96);
+  return (item._th = c.toDataURL('image/jpeg', .85));
+}
+function fillDD(id, list, key){
+  const root = document.getElementById(id), btn = root.querySelector('.dd-btn'), ul = root.querySelector('.dd-list');
+  const paint = () => { const it = list.find(x => x.id === state[key]); btn.querySelector('img').src = thumb(it); btn.querySelector('.dd-name').textContent = it.name; };
+  const build = () => { ul.innerHTML = list.map(x => `<li role="option" data-id="${x.id}" aria-selected="${x.id === state[key]}"><img alt="" src="${thumb(x)}"><span><b>${x.name}</b><small>${x.size}${x.price ? ' · ' + fmt(x.price) + ' zł/m²' : ''} · ${x.note}</small></span></li>`).join(''); };
+  const close = () => { ul.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+  btn.addEventListener('click', () => { if (ul.hidden){ build(); ul.hidden = false; btn.setAttribute('aria-expanded', 'true'); ul.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' }); } else close(); });
+  ul.addEventListener('click', e => { const li = e.target.closest('li'); if (!li) return; state[key] = li.dataset.id; close(); applyFinishes(); paint(); });
+  document.addEventListener('click', e => { if (!root.contains(e.target)) close(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
   document.querySelectorAll(`[data-step="${key}"]`).forEach(b => b.addEventListener('click', () => {
-    const i = list.findIndex(x => x.id === state[key]); const n = list[(i + (+b.dataset.dir) + list.length) % list.length];
-    state[key] = n.id; s.value = n.id; applyFinishes();
+    const i = list.findIndex(x => x.id === state[key]); state[key] = list[(i + (+b.dataset.dir) + list.length) % list.length].id;
+    applyFinishes(); paint(); if (!ul.hidden) build();
   }));
+  paint();
 }
 
-fillSelect('wallSel', WALLS, 'wallFin');
-fillSelect('floorSel', FLOORS, 'floorFin');
+fillDD('wallDD', WALLS, 'wallFin');
+fillDD('floorDD', FLOORS, 'floorFin');
 applyFinishes();
 document.querySelectorAll('.seg').forEach(seg => {
   seg.addEventListener('click', e => {
@@ -1073,6 +1162,7 @@ const VIEWS = [
   { id: 'sink', name: 'Zlew i płyta', pos: [1.6, 1.6, 2.45], tgt: [1.6, 1.15, 0], mode: 'eye' },
   { id: 'win', name: 'Okno', pos: [2.3, 1.6, 2.2], tgt: [0, 1.25, 1.05], mode: 'eye' },
   { id: 'tall', name: 'Słupek i lodówka', pos: [.85, 1.6, .9], tgt: [3.08, 1.15, 2.15], mode: 'eye' },
+  { id: 'hall', name: 'Przedpokój', pos: [W + 3.05, 1.65, .75], tgt: [W + .25, 1.1, -.25], mode: 'eye' },
   { id: 'doll1', name: 'Makieta', pos: [-1.6, 4.3, 5.4], tgt: [1.6, .7, 1.2], mode: 'orbit' },
   { id: 'doll2', name: 'Makieta od okna', pos: [4.9, 4.3, 4.9], tgt: [1.3, .7, 1.1], mode: 'orbit' },
 ];
@@ -1148,7 +1238,10 @@ const keys = new Set();
 window.addEventListener('keydown', e => { if (e.target.closest && e.target.closest('button,input')) return; keys.add(e.key.toLowerCase()); });
 window.addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
 function allowed(x, z){
-  return (x >= .72 && x <= 2.36 && z >= .74 && z <= 2.5) || (x > 2.36 && x <= 3.85 && z >= .66 && z <= 1.22);
+  if (x >= .72 && x <= 2.36 && z >= .74 && z <= 2.5) return true;
+  if (x > 2.36 && x <= W + .45 && z >= .66 && z <= 1.22) return true;
+  if (x > W + .45 && x <= W + 3.2 && z >= -2.5 && z <= 1.42 && !(x < W + 1.0 && z < -1.5)) return true;
+  return false;
 }
 
 // wybieranie
@@ -1192,7 +1285,7 @@ document.getElementById('loading').remove();
 
 const clock = new THREE.Clock();
 const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-function inHall(p){ return p.x > W - .05 && p.x < W + 1.5 && p.z > .45 && p.z < 1.41 && p.y < 2.1; }
+function inHall(p){ return p.x > W - .05 && p.x < W + 3.45 && p.z > -2.8 && p.z < 2.5 && p.y < CH; }
 function tick(){
   const dt = Math.min(clock.getDelta(), .05);
   if (anim){
@@ -1230,6 +1323,7 @@ function tick(){
   const hall = inHall(cp);
   walls.forEach(w => { const v = hall || cp.clone().sub(w.p).dot(w.n) > -.02; w.g.visible = v; (w.extra || []).forEach(o => o.visible = v); });
   ceilG.visible = cp.y < CH - .02;
+  hallCeil.forEach(m => m.visible = cp.y < CH - .02);
 
   renderer.render(scene, camera);
   requestAnimationFrame(tick);
