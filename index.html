@@ -136,7 +136,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
   <aside id="panel" class="collapsed" aria-label="Ustawienia wizualizacji">
     <div class="head">
       <div>
-        <div class="eyebrow">Kuchnia 3,08 × 2,78 m · Blande · wersja 8</div>
+        <div class="eyebrow">Kuchnia 3,08 × 2,78 m · Blande · wersja 10</div>
         <h1>Butelkowa zieleń z dębem</h1>
       </div>
       <button class="btn" id="toggle" aria-expanded="false">Opcje</button>
@@ -177,7 +177,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
     <div class="more sect">
       <span class="lab">Wykończenie z Castoramy</span>
       <div class="fin">
-        <span class="fl">Ściana (tylko w miejscu kafli)</span>
+        <span class="fl">Ściana (pas pod szafkami + narożnik przy lodówce)</span>
         <div class="pick"><button class="btn step" data-step="wallFin" data-dir="-1" aria-label="Poprzedni panel ścienny">‹</button><div class="dd" id="wallDD"><button class="dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><img alt=""><span class="dd-name"></span><span aria-hidden="true">▾</span></button><ul class="dd-list" role="listbox" hidden></ul></div><button class="btn step" data-step="wallFin" data-dir="1" aria-label="Następny panel ścienny">›</button></div>
         <div class="info" id="wallInfo"></div>
       </div>
@@ -220,8 +220,8 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
         </ul></div>
       </div>
       <ul class="notes">
-        <li>Ze zdjęć odtworzyłem rury pod sufitem (wzdłuż okna, nad dawną kuchenką do ok. 1,2 m i na ścianie przy stole), pion w narożniku, rury grzewcze przy podłodze, kratkę w suficie i trzy pola kafli (łata kafli jest na ścianie z wejściem, za lodówką i częścią słupka). Położenia są orientacyjne, ok. ±20–30 cm.</li>
-        <li>Panele ścienne idą wyłącznie tam, gdzie dziś są kafle, razem ok. 3,4 m². Łata za lodówką i słupkiem (ok. 0,7 m²) po zabudowie będzie niewidoczna. Pas nad dawnym zlewem kończy się na wysokości 1,5 m, więc do szafek górnych zostaje ok. 7 cm ściany, a od ok. 2,45 m do łuku ściana zostaje malowana.</li>
+        <li>Ze zdjęć odtworzyłem rury pod sufitem (wzdłuż okna, nad dawną kuchenką do ok. 1,2 m i na ścianie przy stole), pion w narożniku, rury grzewcze przy podłodze, kratkę w suficie i trzy pola kafli (łata kafli jest w narożniku przy lodówce, na obu ścianach). Położenia są orientacyjne, ok. ±20–30 cm.</li>
+        <li>Panele ścienne idą przez cały pas między blatem a szafkami górnymi, od ściany z oknem do ściany przy łuku, i w przerwie pod szafką okapową. Do tego łata w narożniku przy lodówce, na obu ścianach (w większości schowana za lodówką). Razem ok. 3,6 m². Kafle nad szafkami są skute, a ściana zamalowana.</li>
         <li>Tekstury paneli są poglądowe, kolory wziąłem ze zdjęć produktów. Ceny z Castoramy z 16.11.2026.</li>
         <li>Blat spod okna idzie aż do narożnika nad kaloryferem i łączy się z blatem przy zlewie. Płyta stoi poza narożnikiem, z ok. 70 cm blatu po lewej.</li>
         <li>D40 z 3 szufladami stoi w narożniku, 26 cm od ściany z oknem. Szuflady wysuwają się pod przedłużony blat, więc otwiera się je trudniej. Kaloryfer im nie przeszkadza.</li>
@@ -712,7 +712,7 @@ hplane(OX1 - OX0, HZ1 - SZ0, std({ color: 0x3a3632, roughness: 1 }), [(OX0 + OX1
 const hallLight = new THREE.PointLight(0xfff0dd, 2.2, 0, 2); hallLight.position.set(W + 1.5, CH - .15, -.5); scene.add(hallLight);
 // ściana akcentowa: dziś ciemnozielona, docelowo oliwkowa
 {
-  const m = hplane(1.93, 2.30, M_olive, [HX0 + .003, .1 + 1.15, (.38 - 1.55) / 2], Math.PI / 2);
+  const m = hplane(AR0 + 1.55, 2.30, M_olive, [HX0 + .003, .1 + 1.15, (AR0 - 1.55) / 2], Math.PI / 2);  // na równo z krawędzią łuku
   m.userData.label = 'Ściana akcentowa – oliwkowa (dziś ciemnozielona)'; pickables.push(m);
 }
 // obrazy i panele z mchu
@@ -891,7 +891,7 @@ ceilLight.position.set(W / 2, CH - .15, L / 2); ceilLight.castShadow = true; cei
 scene.add(ceilLight);
 
 /* ---------- warianty ---------- */
-const state = { wallFin: 'ps-light', floorFin: 'alto', hood: 'none', top: 'oak', time: 'day', led: 'off' };
+const state = { wallFin: 'ps-ragga-grey', floorFin: 'alto', hood: 'none', top: 'oak', time: 'day', led: 'off' };
 function applyState(){
   worktops.forEach(m => m.material = TOPS[state.top]);
   const eve = state.time === 'evening';
@@ -903,6 +903,7 @@ function applyState(){
   skyMat.map = eve ? skyEve : skyDay;
   setEnv(eve ? .22 : .75);
   runNew.userData.leds.visible = state.led === 'on';
+  if (typeof applyFinishes === 'function') applyFinishes();
   hoodVariants.none.forEach(g => g.visible = state.hood === 'none');
   hoodVariants.cab.forEach(g => g.visible = state.hood === 'cab');
   hoodVariants.low.forEach(g => g.visible = state.hood === 'low');
@@ -950,11 +951,15 @@ function zone(parent, x0, y0, w, h, z, list, text){
 }
 const tileZones = [];
 const Y0 = TOP + WT;
-// obecne kafle (ze zdjęć) – panele winylowe pójdą dokładnie w te miejsca
-zone(wallB_.g, 0, Y0, 1.20, 2.48 - Y0, .004, tileZones, 'Kafle: pole do sufitu przy oknie (dawniej nad kuchenką)');
-zone(wallB_.g, 1.20, Y0, 1.25, 1.50 - Y0, .004, tileZones, 'Kafle: pas nad dawnym zlewem');
-zone(wallC_.g, 1.95, .85, L - 1.95, .80, .004, tileZones, 'Kafle: łata za lodówką i częścią słupka (niewidoczna po zabudowie)');
-const WALL_AREA = 1.20 * (2.48 - Y0) + 1.25 * (1.50 - Y0) + (L - 1.95) * .80;
+// panele winylowe: cały pas między blatem a szafkami górnymi, od ściany z oknem do ściany przy łuku
+zone(wallB_.g, 0, Y0, W, UB - Y0, .004, tileZones, 'Pas między blatem a szafkami');
+// przerwa pod szafką okapową (gdy wisi w górnej linii)
+const hoodGap = zone(wallB_.g, .662, UB, .60, (UT - .36) - UB, .004, tileZones, 'Przerwa pod szafką okapową');
+// łata w narożniku przy lodówce: obie ściany
+zone(wallD_.g, 0, .85, .98, .80, .004, tileZones, 'Narożnik przy lodówce – ściana przy stole');
+zone(wallC_.g, 1.95, .85, L - 1.95, .80, .004, tileZones, 'Narożnik – za lodówką i częścią słupka');
+B(wallD_.g, .08, .08, .015, M.white, .12, 1.45, .006); B(wallD_.g, .08, .08, .015, M.white, .21, 1.45, .006);
+const WALL_AREA = W * (UB - Y0) + .98 * .80 + (L - 1.95) * .80;
 // podłoga: UV w metrach
 {
   const p = floor.geometry.attributes.position, uv = floor.geometry.attributes.uv;
@@ -1100,6 +1105,7 @@ function applyFinishes(){
   const wi = WALLS.find(x => x.id === state.wallFin), fi = FLOORS.find(x => x.id === state.floorFin);
   const isTiles = wi.id === 'kafle';
   tileZones.forEach(m => { m.material = isTiles ? finMat(WALLS[0], .5) : finMat(wi, .75); m.userData.label = (isTiles ? 'Obecne kafle' : wi.name + ' (' + wi.size + ')') + ' – ' + m.userData.base; });
+  hoodGap.visible = state.hood === 'none';
   floor.material = finMat(fi, .6);
   floor.userData.label = fi.name + ' (' + fi.size + ')';
   renderInfo('wallInfo', wi, WALL_AREA);
