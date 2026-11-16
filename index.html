@@ -114,6 +114,30 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
 #hint{position:absolute;right:max(16px, env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));
   background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--muted);max-width:min(440px,calc(100% - 32px))}
 #hint b{color:var(--fg)}
+.wall li.vq span:first-child::after{content:" • inna niż w wycenie";color:var(--oak);font-weight:700;font-size:11px}
+#priceNote{font-size:12px}
+#priceNote b{color:var(--oak)}
+
+#swap{position:absolute;z-index:5;width:280px;background:var(--surface);color:var(--fg);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.18);
+  padding:12px;display:flex;flex-direction:column;gap:10px}
+.sw-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.sw-head b{font-family:var(--font-display);font-size:16px;line-height:1.2;display:block;margin-top:2px}
+.sw-x{padding:2px 9px;font-size:16px;line-height:1.2}
+.sw-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sw-opts button{font:inherit;color:var(--fg);background:var(--chip);border:1px solid transparent;border-radius:10px;
+  padding:8px 6px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.sw-opts button:hover{border-color:var(--line)}
+.sw-opts button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.sw-opts svg{width:44px;height:52px;display:block}
+.sw-opts .nm{font-size:12px;font-weight:700;line-height:1.2}
+.sw-opts .q{font-size:12px;font-weight:600;opacity:.8}
+.sw-note{margin:0;font-size:12px;color:var(--muted);line-height:1.4}
+@media (max-width:720px){
+  #swap{left:max(10px, env(safe-area-inset-left,0px))!important;right:max(10px, env(safe-area-inset-right,0px));
+    top:calc(10px + env(safe-area-inset-top,0px))!important;width:auto}
+}
 #loading{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-size:18px;color:var(--muted);pointer-events:none}
 
 @media (max-width:720px){
@@ -136,12 +160,13 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
   <aside id="panel" class="collapsed" aria-label="Ustawienia wizualizacji">
     <div class="head">
       <div>
-        <div class="eyebrow">Kuchnia 3,08 × 2,78 m · Blande · wersja 10</div>
+        <div class="eyebrow">Kuchnia 3,08 × 2,78 m · Blande · wersja 11</div>
         <h1>Butelkowa zieleń z dębem</h1>
       </div>
       <button class="btn" id="toggle" aria-expanded="false">Opcje</button>
     </div>
     <div class="price">Wycena szafek <b>4 458 zł</b> bez blatów</div>
+    <p class="tip more" id="priceNote" hidden></p>
 
     <div class="sect">
       <span class="lab">Widok</span>
@@ -189,26 +214,26 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
     </div>
 
     <div class="more sect">
-      <p class="tip">Kliknij front, żeby otworzyć drzwiczki lub wysunąć szufladę. <button class="btn" id="closeAll" style="padding:3px 9px;font-size:12px">Zamknij wszystkie</button></p>
+      <p class="tip">Kliknij front, żeby otworzyć drzwiczki lub wysunąć szufladę. Przy szafkach z kilkoma wariantami pojawi się okienko, w którym zamienisz szafkę na inną. <button class="btn" id="closeAll" style="padding:3px 9px;font-size:12px">Zamknij wszystkie</button></p>
     </div>
 
     <details class="more">
       <summary>Lista szafek i uwagi</summary>
       <div class="list">
         <div class="wall"><h3>Ściana ze zlewem (od narożnika)</h3><ul>
-          <li class="chg"><span>3 szuflady w narożniku</span><span>40 × 85</span></li>
-          <li><span>2 drzwi pod płytą</span><span>60 × 85</span></li>
-          <li><span>3 szuflady</span><span>60 × 85</span></li>
+          <li data-slot="b0"></li>
+          <li data-slot="b1"></li>
+          <li data-slot="b2"></li>
           <li><span>Zlewowa, 2 drzwi</span><span>60 × 85</span></li>
           <li class="chg"><span>Zmywarka do zabudowy + front</span><span>60</span></li>
-          <li><span>Górna 1 drzwi</span><span>40 × 60</span></li>
+          <li data-slot="u0"></li>
           <li class="chg"><span>Okapowa z okapem do zabudowy</span><span>60 × 36</span></li>
           <li class="chg"><span>Opcja: szafka nad okapem (zapytać)</span><span>60 × 24</span></li>
           <li><span>Górna 2 drzwi ×3</span><span>60 × 60</span></li>
         </ul></div>
         <div class="wall"><h3>Ściana z oknem</h3><ul>
-          <li><span>2 drzwi</span><span>60 × 85</span></li>
-          <li><span>2 drzwi</span><span>80 × 85</span></li>
+          <li data-slot="a0"></li>
+          <li data-slot="a1"></li>
           <li class="chg"><span>Blat przedłużony do narożnika</span><span>2,78 m</span></li>
         </ul></div>
         <div class="wall"><h3>Ściana z wejściem</h3><ul>
@@ -224,7 +249,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
         <li>Panele ścienne idą przez cały pas między blatem a szafkami górnymi, od ściany z oknem do ściany przy łuku, i w przerwie pod szafką okapową. Do tego łata w narożniku przy lodówce, na obu ścianach (w większości schowana za lodówką). Razem ok. 3,6 m². Kafle nad szafkami są skute, a ściana zamalowana.</li>
         <li>Tekstury paneli są poglądowe, kolory wziąłem ze zdjęć produktów. Ceny z Castoramy z 16.11.2026.</li>
         <li>Blat spod okna idzie aż do narożnika nad kaloryferem i łączy się z blatem przy zlewie. Płyta stoi poza narożnikiem, z ok. 70 cm blatu po lewej.</li>
-        <li>D40 z 3 szufladami stoi w narożniku, 26 cm od ściany z oknem. Szuflady wysuwają się pod przedłużony blat, więc otwiera się je trudniej. Kaloryfer im nie przeszkadza.</li>
+        <li id="noteCorner"></li>
         <li>Zlew i zmywarka zostają przy łuku, blisko dzisiejszych podejść wody.</li>
         <li>Okno, parapet i kaloryfer są przeniesione ze zdjęcia, w proporcjach do ściany 2,78 m: okno ok. 1,75 × 1,40 m, parapet przez całą ścianę ok. 1,03 m nad podłogą. Warto to sprawdzić miarką.</li>
         <li>W blacie nad kaloryferem jest kratka przy samej ścianie, pod parapetem, żeby ciepło szło w stronę okna.</li>
@@ -233,6 +258,14 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
     </details>
   </aside>
 
+  <div id="swap" role="dialog" aria-labelledby="swTitle" hidden>
+    <div class="sw-head">
+      <div><div class="eyebrow" id="swWall"></div><b id="swTitle"></b></div>
+      <button class="btn sw-x" id="swClose" type="button" aria-label="Zamknij">×</button>
+    </div>
+    <div class="sw-opts" id="swOpts"></div>
+    <p class="sw-note">Tylko warianty z oferty hurtowni: nie ma szuflad w 80 cm, szafek z 1 lub 4 szufladami ani szafki pod ociekacz.</p>
+  </div>
   <div id="tip" hidden></div>
   <div id="hint"></div>
 </div>
@@ -507,9 +540,9 @@ function baseCab(parent, u, w, type, text, sink = false){
     const dw = w / 2 - .003;
     door(g, .0015, y0, dw, FH, zf, 'L', 'top');
     door(g, w / 2 + .0015, y0, dw, FH, zf, 'R', 'top');
-  } else if (type === 'd1'){
-    B(g, w - 2 * T, T, D - .04, M.inner, T, PL + (H - PL) / 2, 0);
-    door(g, .0015, y0, w - .003, FH, zf, 'L', 'top');
+  } else if (type === 'd1' || type === 'd1L' || type === 'd1R'){
+    if (!sink) B(g, w - 2 * T, T, D - .04, M.inner, T, PL + (H - PL) / 2, 0);
+    door(g, .0015, y0, w - .003, FH, zf, type === 'd1R' ? 'R' : 'L', 'top');
   } else if (type === 'dr3'){
     const hs = [.14]; const rest = (FH - .14 - .006) / 2; hs.push(rest, rest);
     let top = y0 + FH;
@@ -759,6 +792,44 @@ wallArt(mossTex, -.75, -1.35, .68, 2.05, .05, 'Panel z mchu (ze zdjęcia)');
 const worktops = [];
 function top(parent, w, h, d, x, y, z){ const m = B(parent, w, h, d, TOPS.oak, x, y, z); worktops.push(m); m.userData.label = 'Blat – wykonujesz sam'; pickables.push(m); return m; }
 
+/* ---------- szafki wymienne (klik → zamień) ----------
+   Warianty tylko z oferty hurtowni (mail #193350): brak szuflad w 80 cm, brak szafek z 1 i 4 szufladami, brak szafki pod ociekacz. */
+const TYPES = {
+  d2: { name: '2 drzwi' },
+  d1L: { name: '1 drzwi, zawias z lewej' },
+  d1R: { name: '1 drzwi, zawias z prawej' },
+  dr3: { name: '3 szuflady' },
+  dr3x2: { name: '2 × D40 z 3 szufladami' },
+};
+const slots = [];
+const savedCabs = (() => {
+  const m = /(?:^#|&)szafki=([^&]*)/.exec(location.hash), o = {};
+  if (m) m[1].split('.').forEach(p => { const [k, v] = p.split('-'); if (k && v) o[k] = v; });
+  return o;
+})();
+function slotCode(s){ return (s.kind === 'wall' ? 'W' : 'D') + Math.round(s.w * 100); }
+function slotLabel(s, t = s.type){ return `${slotCode(s)} · ${TYPES[t].name} · ${s.where}`; }
+function slot(s){
+  s.type = s.opts.includes(savedCabs[s.id]) ? savedCabs[s.id] : s.def;
+  slots.push(s); buildSlot(s); return s;
+}
+function buildSlot(s){
+  if (s.group) removeGroup(s.group);
+  const g = new THREE.Group(); s.parent.add(g); s.group = g;
+  const text = slotLabel(s);
+  if (s.type === 'dr3x2'){ baseCab(g, s.x, s.w / 2, 'dr3', text); baseCab(g, s.x + s.w / 2, s.w / 2, 'dr3', text); }
+  else if (s.kind === 'wall') wallCab(g, s.x, s.w, .60, s.type, text);
+  else baseCab(g, s.x, s.w, s.type, text);
+  g.traverse(o => { o.userData.slot = s; });
+}
+function removeGroup(g){
+  const inside = o => { while (o){ if (o === g) return true; o = o.parent; } return false; };
+  for (let i = pickables.length - 1; i >= 0; i--) if (inside(pickables[i])) pickables.splice(i, 1);
+  for (let i = parts.length - 1; i >= 0; i--) if (inside(parts[i].obj)) parts.splice(i, 1);
+  g.traverse(o => { if (o.isMesh) o.geometry.dispose(); });
+  g.parent.remove(g);
+}
+
 function dishwasher(g0, x){
   const g = new THREE.Group(); g.position.set(x, 0, OFF); g0.add(g);
   B(g, .596, .815, .47, M.dwBody, 0, 0, 0);
@@ -820,12 +891,13 @@ function hob(g0, x){
 function buildRunB(cfg){
   const g = new THREE.Group(); scene.add(g);
   cfg.base.forEach(c => {
-    if (c.t === 'dw') dishwasher(g, c.x);
+    if (c.slot) slot({ ...c.slot, parent: g, x: c.x, w: c.w, kind: 'base' });
+    else if (c.t === 'dw') dishwasher(g, c.x);
     else if (c.t === 'shelf') shelvesCab(g, c.x, c.w, c.label);
     else if (c.t === 'end'){ const e = new THREE.Group(); g.add(e); B(e, T, TOP, .47 + FT, M.oakV, c.x, 0, OFF); label(e, c.label); }
     else baseCab(g, c.x, c.w, c.t, c.label, !!c.sink);
   });
-  cfg.upper.forEach(c => c.t === 'hood' ? hoodCab(g, c.x, c.label) : wallCab(g, c.x, c.w, .60, c.t, c.label));
+  cfg.upper.forEach(c => c.slot ? slot({ ...c.slot, parent: g, x: c.x, w: c.w, kind: 'wall' }) : c.t === 'hood' ? hoodCab(g, c.x, c.label) : wallCab(g, c.x, c.w, .60, c.t, c.label));
   // blat z otworem na zlew
   const sx0 = cfg.sinkX + .08, sx1 = cfg.sinkX + .52, sz0 = .115, sz1 = .47, D = .58;
   if (sx0 - cfg.top0 > 0) top(g, sx0 - cfg.top0, WT, D, cfg.top0, TOP, 0);
@@ -847,15 +919,15 @@ function buildRunB(cfg){
 const runNew = buildRunB({
   top0: .58, sinkX: 1.862, hobX: .662,
   base: [
-    { t: 'dr3', x: .262, w: .40, label: 'D40 · 3 szuflady w narożniku (wysuwają się pod blat spod okna)' },
-    { t: 'd2', x: .662, w: .60, label: 'D60 · 2 drzwi pod płytą' },
-    { t: 'dr3', x: 1.262, w: .60, label: 'D60 · 3 szuflady' },
+    { x: .262, w: .40, slot: { id: 'b0', where: 'w narożniku', def: 'd1L', quote: 'dr3', opts: ['d1L', 'd1R', 'dr3'] } },
+    { x: .662, w: .60, slot: { id: 'b1', where: 'pod płytą', def: 'd2', quote: 'd2', opts: ['d2', 'd1L', 'd1R', 'dr3'] } },
+    { x: 1.262, w: .60, slot: { id: 'b2', where: 'obok płyty', def: 'dr3', quote: 'dr3', opts: ['d2', 'd1L', 'd1R', 'dr3'] } },
     { t: 'd2', x: 1.862, w: .60, label: 'Szafka zlewowa D60 · 2 drzwi', sink: true },
     { t: 'dw', x: 2.462 },
     { t: 'end', x: 3.062, label: 'Bok zamykający przy łuku 18 mm' },
   ],
   upper: [
-    { t: 'd1L', x: .262, w: .40, label: 'W40 · 1 drzwi' },
+    { x: .262, w: .40, slot: { id: 'u0', where: 'górna w narożniku', def: 'd1L', quote: 'd1L', opts: ['d1L', 'd1R'] } },
     { t: 'hood', x: .662, label: 'W60 okapowa z okapem do zabudowy (pochłaniacz)' },
     { t: 'd2', x: 1.262, w: .60, label: 'W60 · 2 drzwi' },
     { t: 'd2', x: 1.862, w: .60, label: 'W60 · 2 drzwi nad zlewem (zamiast ociekacza)' },
@@ -866,9 +938,9 @@ const runNew = buildRunB({
 
 // ściana z oknem: lokalne x biegnie od ściany naprzeciw zlewu do ściany ze zlewem
 const runA = frame(scene, 0, 0, L, Math.PI / 2);
-// szafki pod oknem dosunięte do ściany (bez półek 25)
-baseCab(runA, 0, .60, 'd2', 'D60 · 2 drzwi');
-baseCab(runA, .60, .80, 'd2', 'D80 · 2 drzwi (zamiast szuflad)');
+// szafki pod oknem dosunięte do ściany (bez półek 25); lewa przy ścianie – szuflady
+slot({ id: 'a0', parent: runA, x: 0, w: .60, kind: 'base', where: 'przy ścianie, pod oknem', def: 'dr3', quote: 'd2', opts: ['d2', 'd1L', 'd1R', 'dr3'] });
+slot({ id: 'a1', parent: runA, x: .60, w: .80, kind: 'base', where: 'pod oknem', def: 'd2', quote: 'd2', opts: ['d2', 'dr3x2'] });
 top(runA, L, WT, .58, 0, TOP, 0);   // blat spod okna dosunięty do narożnika (przedłużenie nad kaloryferem)
 B(runA, .32, .003, .06, M.black, 1.545, TOP + WT, .025, false);   // kratka w blacie nad kaloryferem
 { const k = new THREE.Group(); runA.add(k); B(k, .32, .004, .065, M.steelD, 1.54, TOP + WT - .001, .022, false); label(k, 'Kratka w blacie nad kaloryferem – przy ścianie, pod parapetem'); }
@@ -1208,8 +1280,8 @@ function finish(v, to){
 const hint = document.getElementById('hint');
 function updateHint(){
   hint.innerHTML = mode === 'eye'
-    ? '<b>Przeciągnij</b> – rozejrzyj się · <b>W A S D</b> / strzałki – chodzenie · <b>kółko</b> – szerszy kadr · <b>klik w front</b> – otwórz'
-    : '<b>Przeciągnij</b> – obróć makietę · <b>kółko</b> – przybliż · <b>klik w front</b> – otwórz';
+    ? '<b>Przeciągnij</b> – rozejrzyj się · <b>W A S D</b> / strzałki – chodzenie · <b>kółko</b> – szerszy kadr · <b>klik w szafkę</b> – otwórz / zamień'
+    : '<b>Przeciągnij</b> – obróć makietę · <b>kółko</b> – przybliż · <b>klik w szafkę</b> – otwórz / zamień';
 }
 
 // wskaźnik: przeciąganie vs klik
@@ -1267,14 +1339,81 @@ function hover(e){
     const r = app.getBoundingClientRect();
     let x = e.clientX - r.left, y = e.clientY - r.top;
     tipEl.style.left = Math.min(x, r.width - tipEl.offsetWidth - 20) + 'px'; tipEl.style.top = y + 'px';
-    canvas.classList.toggle('hot', !!h.object.userData.part);
+    if (h.object.userData.slot) tipEl.textContent += ' · klik: zamień';
+    canvas.classList.toggle('hot', !!(h.object.userData.part || h.object.userData.slot));
   } else { tipEl.hidden = true; canvas.classList.remove('hot'); }
 }
 function click(e){
   const h = pick(e);
   if (h && h.object.userData.part){ const p = h.object.userData.part; p.target = p.target ? 0 : 1; }
+  const s = h && h.object.userData.slot;
+  if (s) showSwap(s, e); else hideSwap();
 }
 document.getElementById('closeAll').onclick = () => parts.forEach(p => p.target = 0);
+
+/* ---------- zamiana szafek ---------- */
+const swapEl = document.getElementById('swap'), swOpts = document.getElementById('swOpts');
+const selBox = new THREE.Box3Helper(new THREE.Box3(), 0xd3a46c); selBox.visible = false; scene.add(selBox);
+let selSlot = null;
+function typeIcon(t, kind){
+  const st = 'fill="none" stroke="currentColor" stroke-width="1.6"';
+  const r = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5" ${st}/>`;
+  const hd = (x, y, w) => `<line x1="${x}" y1="${y}" x2="${x + w}" y2="${y}" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>`;
+  const hinge = x => `<circle cx="${x}" cy="12" r="1.7" fill="currentColor"/><circle cx="${x}" cy="40" r="1.7" fill="currentColor"/>`;
+  const hy = kind === 'wall' ? 44 : 8;
+  const drawers = (x, w) => r(x, 3, w, 10) + r(x, 15, w, 16) + r(x, 33, w, 16) + hd(x + w / 2 - w / 5, 7, w / 2.5) + hd(x + w / 2 - w / 5, 19, w / 2.5) + hd(x + w / 2 - w / 5, 37, w / 2.5);
+  let s = '';
+  if (t === 'd2') s = r(3, 3, 18.5, 46) + r(22.5, 3, 18.5, 46) + hd(7, hy, 10.5) + hd(26.5, hy, 10.5);
+  else if (t === 'd1L' || t === 'd1R') s = r(3, 3, 38, 46) + hd(14, hy, 16) + hinge(t === 'd1L' ? 6.5 : 37.5);
+  else if (t === 'dr3') s = drawers(3, 38);
+  else if (t === 'dr3x2') s = drawers(3, 18.5) + drawers(22.5, 18.5);
+  return `<svg viewBox="0 0 44 52" aria-hidden="true">${s}</svg>`;
+}
+function paintSwap(){
+  const s = selSlot;
+  document.getElementById('swWall').textContent = s.parent === runA ? 'Ściana z oknem' : 'Ściana ze zlewem';
+  document.getElementById('swTitle').textContent = `${slotCode(s)} ${s.where}`;
+  swOpts.innerHTML = s.opts.map(t => `<button type="button" data-t="${t}" aria-pressed="${t === s.type}">${typeIcon(t, s.kind)}<span class="nm">${TYPES[t].name}</span>${t === s.quote ? '<span class="q">jak w wycenie</span>' : ''}</button>`).join('');
+  selBox.box.setFromObject(s.group); selBox.visible = true;
+}
+function showSwap(s, e){
+  selSlot = s; paintSwap(); swapEl.hidden = false;
+  const r = app.getBoundingClientRect(), w = swapEl.offsetWidth, h = swapEl.offsetHeight;
+  let x = e.clientX - r.left + 18, y = e.clientY - r.top - 24;
+  if (x + w > r.width - 16) x = e.clientX - r.left - w - 18;
+  swapEl.style.left = Math.max(16, x) + 'px';
+  swapEl.style.top = Math.max(16, Math.min(y, r.height - h - 16)) + 'px';
+}
+function hideSwap(){ swapEl.hidden = true; selSlot = null; selBox.visible = false; }
+swOpts.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || !selSlot || b.dataset.t === selSlot.type) return;
+  selSlot.type = b.dataset.t; buildSlot(selSlot); paintSwap(); refreshCabs(); saveCabs();
+});
+document.getElementById('swClose').onclick = hideSwap;
+window.addEventListener('keydown', e => { if (e.key === 'Escape' && !swapEl.hidden) hideSwap(); });
+function saveCabs(){
+  const d = slots.filter(s => s.type !== s.def).map(s => `${s.id}-${s.type}`).join('.');
+  history.replaceState(null, '', d ? '#szafki=' + d : location.pathname + location.search);
+}
+function refreshCabs(){
+  document.querySelectorAll('[data-slot]').forEach(li => {
+    const s = slots.find(x => x.id === li.dataset.slot); if (!s) return;
+    const cm = Math.round(s.w * 100);
+    const dims = s.kind === 'wall' ? `${cm} × 60` : s.type === 'dr3x2' ? '2 × 40 × 85' : `${cm} × 85`;
+    li.className = s.type !== s.quote ? 'vq' : '';
+    li.innerHTML = `<span>${TYPES[s.type].name}, ${s.where}</span><span>${dims}</span>`;
+  });
+  const diff = slots.filter(s => s.type !== s.quote), pn = document.getElementById('priceNote');
+  pn.hidden = !diff.length;
+  pn.innerHTML = 'Inaczej niż w wycenie (cenę potwierdzić w hurtowni): ' + diff.map(s => `<b>${slotCode(s)} ${s.where} → ${TYPES[s.type].name}</b>`).join('; ') + '.';
+  const b0 = slots.find(s => s.id === 'b0');
+  document.getElementById('noteCorner').textContent = {
+    d1L: 'D40 w narożniku stoi 26 cm od ściany z oknem i ma jedne drzwi z zawiasem od strony okna. Otwarte skrzydło chowa się w wolnym miejscu pod przedłużonym blatem, a do środka sięgasz od strony płyty. Kaloryfer nie przeszkadza.',
+    d1R: 'D40 w narożniku stoi 26 cm od ściany z oknem i ma jedne drzwi z zawiasem od strony płyty. Do środka sięga się wtedy od strony narożnika, spod przedłużonego blatu, więc wygodniej jest z zawiasem od strony okna.',
+    dr3: 'D40 z 3 szufladami stoi w narożniku, 26 cm od ściany z oknem. Szuflady wysuwają się pod przedłużony blat, więc otwiera się je trudniej. Kaloryfer im nie przeszkadza.',
+  }[b0.type];
+}
+refreshCabs();
 
 // panel na telefonie
 const panel = document.getElementById('panel'), toggle = document.getElementById('toggle');
