@@ -197,6 +197,11 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
           <button id="time-day" data-v="day" aria-pressed="true">Dzień</button>
           <button id="time-evening" data-v="evening" aria-pressed="false">Wieczór</button>
         </div></div>
+      <div class="row"><span class="lab">Narożnik</span>
+        <div class="seg" data-key="corner">
+          <button id="corner-d40" data-v="d40" aria-pressed="true">D40</button>
+          <button id="corner-l90" data-v="l90" aria-pressed="false">L 90 × 90 (Danka)</button>
+        </div></div>
       <div class="row"><span class="lab">LED</span>
         <div class="seg" data-key="led">
           <button id="led-off" data-v="off" aria-pressed="true">Bez</button>
@@ -229,12 +234,17 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
           <li data-slot="b0"></li>
           <li data-slot="b1"></li>
           <li data-slot="b2"></li>
+          <li data-slot="k0"></li>
+          <li data-slot="k1"></li>
+          <li data-slot="k2"></li>
           <li><span>Zlewowa, 2 drzwi</span><span>60 × 85</span></li>
           <li class="chg"><span>Zmywarka do zabudowy + front</span><span>60</span></li>
           <li data-slot="u0"></li>
+          <li data-slot="ku0"></li>
+          <li data-slot="ku1"></li>
           <li class="chg"><span>Okapowa z okapem do zabudowy</span><span>60 × 36</span></li>
           <li class="chg"><span>Opcja: szafka nad okapem (zapytać)</span><span>60 × 24</span></li>
-          <li><span>Górna 2 drzwi ×3</span><span>60 × 60</span></li>
+          <li id="w60row"><span>Górna 2 drzwi ×3</span><span>60 × 60</span></li>
         </ul></div>
         <div class="wall"><h2>Ściana z oknem</h2><ul>
           <li data-slot="a0"></li>
@@ -502,7 +512,7 @@ function handle(p, cx, cy, z, len = .16){
   B(p, .01, .01, .019, M.black, cx - len / 2 + .012, cy - .005, z);
   B(p, .01, .01, .019, M.black, cx + len / 2 - .022, cy - .005, z);
 }
-function door(g, x0, y0, w, h, zf, hinge, hpos, mat = M.green){
+function door(g, x0, y0, w, h, zf, hinge, hpos, mat = M.green, withHandle = true){
   const pv = new THREE.Group(); g.add(pv);
   const px = hinge === 'R' ? x0 + w : hinge === 'L' ? x0 : 0;
   const py = hinge === 'T' ? y0 + h : 0;
@@ -510,7 +520,7 @@ function door(g, x0, y0, w, h, zf, hinge, hpos, mat = M.green){
   const lx = x0 - px, ly = y0 - py;
   B(pv, w, h, FT, mat, lx, ly, 0);
   const hy = hpos === 'top' ? ly + h - .05 : ly + .045;
-  handle(pv, lx + w / 2, hy, FT);
+  if (withHandle) handle(pv, lx + w / 2, hy, FT);
   const rec = { obj: pv, axis: hinge === 'T' ? 'x' : 'y', open: hinge === 'L' ? -1.75 : hinge === 'R' ? 1.75 : -1.2, cur: 0, target: 0 };
   pv.traverse(o => o.userData.part = rec);
   parts.push(rec); return pv;
@@ -805,14 +815,18 @@ const TYPES = {
   d1R: { name: '1 drzwi, zawias z prawej', short: '1 drzwi', detail: 'zawias z prawej' },
   dr3: { name: '3 szuflady', short: '3 szuflady' },
   dr3x2: { name: '2 × D40 z 3 szufladami', short: '2 × D40', detail: 'po 3 szuflady' },
+  // przełączniki układu narożnika (zmieniają całą ścianę ze zlewem)
+  l90: { name: 'narożna L 90 × 90 z zestawu Danka', short: 'Narożna L 90×90', detail: 'Danka · przesuwa płytę', corner: 'l90' },
+  d40: { name: 'D40 bez szafki narożnej', short: 'Bez narożnej', detail: 'wróć do D40 w rogu', corner: 'd40' },
 };
+const CORNER_HASH = /(?:^#|&)naroznik=(l90)/.test(location.hash) ? 'l90' : 'd40';
 const slots = [];
 const savedCabs = (() => {
   const m = /(?:^#|&)szafki=([^&]*)/.exec(location.hash), o = {};
   if (m) m[1].split('.').forEach(p => { const [k, v] = p.split('-'); if (k && v) o[k] = v; });
   return o;
 })();
-function slotCode(s){ return (s.kind === 'wall' ? 'W' : 'D') + Math.round(s.w * 100); }
+function slotCode(s){ return s.code || (s.kind === 'wall' ? 'W' : 'D') + Math.round(s.w * 100); }
 function slotLabel(s, t = s.type){ return `${slotCode(s)} · ${TYPES[t].name} · ${s.where}`; }
 function slot(s){
   s.type = s.opts.includes(savedCabs[s.id]) ? savedCabs[s.id] : s.def;
@@ -822,10 +836,33 @@ function buildSlot(s){
   if (s.group) removeGroup(s.group);
   const g = new THREE.Group(); s.parent.add(g); s.group = g;
   const text = slotLabel(s);
-  if (s.type === 'dr3x2'){ baseCab(g, s.x, s.w / 2, 'dr3', text); baseCab(g, s.x + s.w / 2, s.w / 2, 'dr3', text); }
+  if (s.type === 'l90') cornerCab(g, text);
+  else if (s.type === 'dr3x2'){ baseCab(g, s.x, s.w / 2, 'dr3', text); baseCab(g, s.x + s.w / 2, s.w / 2, 'dr3', text); }
   else if (s.kind === 'wall') wallCab(g, s.x, s.w, .60, s.type, text);
   else baseCab(g, s.x, s.w, s.type, text);
   g.traverse(o => { o.userData.slot = s; });
+}
+/* szafka narożna L 90 × 90 (Danka): ramiona 47 cm wzdłuż obu ścian, dwa fronty po ok. 43 cm na wewnętrznych
+   ścianach, jeden uchwyt, jedna półka, cokół cofnięty. Współrzędne świata: x wzdłuż ściany ze zlewem, z wzdłuż ściany z oknem. */
+function cornerCab(parent, text){
+  const g = new THREE.Group(); parent.add(g);
+  const o = OFF, A = .90, D = .47, PL = .10, H = TOP, i0 = o + D;   // i0: wewnętrzna krawędź ramion
+  B(g, A, H - PL, .006, M.inner, o, PL, o);                       // plecy na ścianie ze zlewem
+  B(g, .006, H - PL, A, M.inner, o, PL, o);                       // plecy na ścianie z oknem
+  B(g, T, H, D, M.oakV, o + A - T, 0, o);                         // bok końca ramienia przy płycie
+  B(g, D, H, T, M.oakV, o, 0, o + A - T);                         // bok końca ramienia przy oknie
+  [PL, PL + (H - PL) / 2, H - T].forEach((y, k) => {              // dno, półka, wieniec (L)
+    const m = k === 2 ? M.oakH : M.inner;
+    B(g, A - T, T, D, m, o, y, o);
+    B(g, D, T, A - D - T, m, o, y, i0);
+  });
+  B(g, A - D - T, PL - .004, T, M.oakH, i0, 0, i0 - .05);         // cokół cofnięty
+  B(g, T, PL - .004, A - D - T, M.oakH, i0 - .05, 0, i0);
+  const y0 = PL + .003, FH = H - .003 - y0, fw = A - D - T - .003;
+  door(g, i0 + .0015, y0, fw, FH, i0, 'R', 'top');                // front przy płycie (z uchwytem)
+  const gB = frame(g, 0, 0, o + A - T, Math.PI / 2);              // front od strony okna, bez uchwytu
+  door(gB, .0015, y0, fw, FH, i0, 'L', 'top', M.green, false);
+  label(g, text); return g;
 }
 function removeGroup(g){
   const inside = o => { while (o){ if (o === g) return true; o = o.parent; } return false; };
@@ -924,21 +961,51 @@ function buildRunB(cfg){
 const runNew = buildRunB({
   top0: .58, sinkX: 1.862, hobX: .662,
   base: [
-    { x: .262, w: .40, slot: { id: 'b0', where: 'w narożniku', def: 'd1L', quote: 'dr3', opts: ['d1L', 'd1R', 'dr3'] } },
-    { x: .662, w: .60, slot: { id: 'b1', where: 'pod płytą', def: 'd2', quote: 'd2', opts: ['d2', 'd1L', 'd1R', 'dr3'] } },
-    { x: 1.262, w: .60, slot: { id: 'b2', where: 'obok płyty', def: 'dr3', quote: 'dr3', opts: ['d2', 'd1L', 'd1R', 'dr3'] } },
+    { x: .262, w: .40, slot: { id: 'b0', layout: 'd40', where: 'w narożniku', def: 'd1L', quote: 'dr3', opts: ['d1L', 'd1R', 'dr3', 'l90'] } },
+    { x: .662, w: .60, slot: { id: 'b1', layout: 'd40', where: 'pod płytą', def: 'd2', quote: 'd2', opts: ['d2', 'd1L', 'd1R', 'dr3'] } },
+    { x: 1.262, w: .60, slot: { id: 'b2', layout: 'd40', where: 'obok płyty', def: 'dr3', quote: 'dr3', opts: ['d2', 'd1L', 'd1R', 'dr3'] } },
     { t: 'd2', x: 1.862, w: .60, label: 'Szafka zlewowa D60 · 2 drzwi', sink: true },
     { t: 'dw', x: 2.462 },
     { t: 'end', x: 3.062, label: 'Bok zamykający przy łuku 18 mm' },
   ],
   upper: [
-    { x: .262, w: .40, slot: { id: 'u0', where: 'górna w narożniku', def: 'd1L', quote: 'd1L', opts: ['d1L', 'd1R'] } },
+    { x: .262, w: .40, slot: { id: 'u0', layout: 'd40', where: 'górna w narożniku', def: 'd1L', quote: 'd1L', opts: ['d1L', 'd1R'] } },
     { t: 'hood', x: .662, label: 'W60 okapowa z okapem do zabudowy (pochłaniacz)' },
     { t: 'd2', x: 1.262, w: .60, label: 'W60 · 2 drzwi' },
     { t: 'd2', x: 1.862, w: .60, label: 'W60 · 2 drzwi nad zlewem (zamiast ociekacza)' },
     { t: 'd2', x: 2.462, w: .60, label: 'W60 · 2 drzwi' },
   ],
 });
+runNew.userData.layout = 'd40';
+
+// układ z narożną L 90 × 90 (Danka): narożnik zajmuje 90 cm na obu ścianach, płyta i okapowa przesunięte o 30 cm,
+// zamiast D60 z szufladami zostaje 30 cm do zlewu; zlew i zmywarka bez zmian (podejścia wody)
+const runCorner = buildRunB({
+  top0: .58, sinkX: 1.862, hobX: .96,
+  base: [
+    { x: OFF, w: .90, slot: { id: 'k0', layout: 'l90', code: 'L90', dims: '90 × 90 × 85', where: 'w narożniku (Danka)', def: 'l90', quote: null, opts: ['l90', 'd40'] } },
+    { x: .96, w: .60, slot: { id: 'k1', layout: 'l90', where: 'pod płytą', def: 'd2', quote: 'd2', opts: ['d2', 'd1L', 'd1R', 'dr3'] } },
+    { x: 1.56, w: .30, slot: { id: 'k2', layout: 'l90', where: 'między płytą a zlewem', def: 'd1R', quote: null, opts: ['d1L', 'd1R'] } },
+    { t: 'd2', x: 1.862, w: .60, label: 'Szafka zlewowa D60 · 2 drzwi', sink: true },
+    { t: 'dw', x: 2.462 },
+    { t: 'end', x: 3.062, label: 'Bok zamykający przy łuku 18 mm' },
+  ],
+  upper: [
+    { x: .56, w: .40, slot: { id: 'ku0', layout: 'l90', where: 'górna obok okapu', def: 'd1L', quote: 'd1L', opts: ['d1L', 'd1R'] } },
+    { t: 'hood', x: .96, label: 'W60 okapowa z okapem do zabudowy (pochłaniacz)' },
+    { x: 1.56, w: .30, slot: { id: 'ku1', layout: 'l90', where: 'górna między okapem a zlewem', def: 'd1R', quote: null, opts: ['d1L', 'd1R'] } },
+    { t: 'd2', x: 1.862, w: .60, label: 'W60 · 2 drzwi nad zlewem (zamiast ociekacza)' },
+    { t: 'd2', x: 2.462, w: .60, label: 'W60 · 2 drzwi' },
+  ],
+});
+runCorner.userData.layout = 'l90';
+{ // kolizja ramienia narożnika z kaloryferem (kaloryfer w modelu od ok. 84 cm od ściany ze zlewem)
+  // rysowany „na wierzchu”, bo miejsce kolizji jest schowane w korpusie
+  const red = new THREE.MeshBasicMaterial({ color: 0xe0442f, transparent: true, opacity: .6, depthTest: false, depthWrite: false });
+  const k = new THREE.Group(); runCorner.add(k);
+  B(k, .075, .62, .13, red, .045, .06, .832, false).renderOrder = 10;
+  label(k, 'Kolizja: ramię narożnika nachodzi na kaloryfer o ok. 12 cm – zmierz przed zamówieniem');
+}
 
 
 // ściana z oknem: lokalne x biegnie od ściany naprzeciw zlewu do ściany ze zlewem
@@ -968,7 +1035,7 @@ ceilLight.position.set(W / 2, CH - .15, L / 2); ceilLight.castShadow = true; cei
 scene.add(ceilLight);
 
 /* ---------- warianty ---------- */
-const state = { wallFin: 'ps-ragga-grey', floorFin: 'alto', hood: 'none', top: 'oak', time: 'day', led: 'off' };
+const state = { wallFin: 'ps-ragga-grey', floorFin: 'alto', hood: 'none', top: 'oak', time: 'day', led: 'off', corner: CORNER_HASH };
 function applyState(){
   worktops.forEach(m => m.material = TOPS[state.top]);
   const eve = state.time === 'evening';
@@ -979,7 +1046,7 @@ function applyState(){
   M.lamp.emissiveIntensity = eve ? 2.2 : .7;
   skyMat.map = eve ? skyEve : skyDay;
   setEnv(eve ? .22 : .75);
-  runNew.userData.leds.visible = state.led === 'on';
+  [runNew, runCorner].forEach(r => { r.visible = r.userData.layout === state.corner; r.userData.leds.visible = state.led === 'on'; });
   if (typeof applyFinishes === 'function') applyFinishes();
   hoodVariants.none.forEach(g => g.visible = state.hood === 'none');
   hoodVariants.cab.forEach(g => g.visible = state.hood === 'cab');
@@ -1032,6 +1099,7 @@ const Y0 = TOP + WT;
 zone(wallB_.g, 0, Y0, W, UB - Y0, .004, tileZones, 'Pas między blatem a szafkami');
 // przerwa pod szafką okapową (gdy wisi w górnej linii)
 const hoodGap = zone(wallB_.g, .662, UB, .60, (UT - .36) - UB, .004, tileZones, 'Przerwa pod szafką okapową');
+const hoodGapCorner = zone(wallB_.g, .96, UB, .60, (UT - .36) - UB, .004, tileZones, 'Przerwa pod szafką okapową');
 // łata w narożniku przy lodówce: obie ściany
 zone(wallD_.g, 0, .85, .98, .80, .004, tileZones, 'Narożnik przy lodówce – ściana przy stole');
 zone(wallC_.g, 1.95, .85, L - 1.95, .80, .004, tileZones, 'Narożnik – za lodówką i częścią słupka');
@@ -1182,7 +1250,8 @@ function applyFinishes(){
   const wi = WALLS.find(x => x.id === state.wallFin), fi = FLOORS.find(x => x.id === state.floorFin);
   const isTiles = wi.id === 'kafle';
   tileZones.forEach(m => { m.material = isTiles ? finMat(WALLS[0], .5) : finMat(wi, .75); m.userData.label = (isTiles ? 'Obecne kafle' : wi.name + ' (' + wi.size + ')') + ' – ' + m.userData.base; });
-  hoodGap.visible = state.hood === 'none';
+  hoodGap.visible = state.hood === 'none' && state.corner === 'd40';
+  hoodGapCorner.visible = state.hood === 'none' && state.corner === 'l90';
   floor.material = finMat(fi, .6);
   floor.userData.label = fi.name + ' (' + fi.size + ')';
   renderInfo('wallInfo', wi, WALL_AREA);
@@ -1226,6 +1295,7 @@ applyFinishes();
 document.querySelectorAll('.seg').forEach(seg => {
   seg.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
+    if (seg.dataset.key === 'corner'){ hideSwap(); setCorner(b.dataset.v); return; }
     state[seg.dataset.key] = b.dataset.v;
     seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     applyState();
@@ -1390,6 +1460,8 @@ function typeIcon(t, kind){
   else if (t === 'd1L' || t === 'd1R') s = r(3, 3, 38, 46) + hd(14, hy, 16) + hinge(t === 'd1L' ? 6.5 : 37.5);
   else if (t === 'dr3') s = drawers(3, 38);
   else if (t === 'dr3x2') s = drawers(3, 18.5) + drawers(22.5, 18.5);
+  else if (t === 'l90') s = `<path d="M4 6h36v40H22V24H4z" ${st} stroke-linejoin="round"/>` + `<path d="M4 6v18" ${st}/>` + hd(26, 30, 10);   // rzut L z góry
+  else if (t === 'd40') s = r(10, 3, 24, 46) + hd(16, hy, 12) + hinge(13.5);
   return `<svg viewBox="0 0 44 52" aria-hidden="true">${s}</svg>`;
 }
 function paintSwap(){
@@ -1417,27 +1489,41 @@ function showSwap(s, e){
 function hideSwap(){ swapEl.hidden = true; selSlot = null; selBox.visible = false; }
 swOpts.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b || !selSlot || b.dataset.t === selSlot.type) return;
+  const t = TYPES[b.dataset.t];
+  if (t.corner){ setCorner(t.corner); hideSwap(); return; }   // zmiana układu narożnika
   selSlot.type = b.dataset.t; buildSlot(selSlot); paintSwap(); refreshCabs(); saveCabs();
 });
+function setCorner(v){
+  state.corner = v;
+  document.querySelectorAll('[data-key="corner"] button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === v)));
+  applyState(); refreshCabs(); saveCabs();
+}
+document.querySelectorAll('[data-key="corner"] button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === state.corner)));
 document.getElementById('swClose').onclick = hideSwap;
 window.addEventListener('keydown', e => { if (e.key === 'Escape' && !swapEl.hidden) hideSwap(); });
 function saveCabs(){
   const d = slots.filter(s => s.type !== s.def).map(s => `${s.id}-${s.type}`).join('.');
-  history.replaceState(null, '', d ? '#szafki=' + d : location.pathname + location.search);
+  const parts = [d && 'szafki=' + d, state.corner === 'l90' && 'naroznik=l90'].filter(Boolean);
+  history.replaceState(null, '', parts.length ? '#' + parts.join('&') : location.pathname + location.search);
 }
 function refreshCabs(){
+  const active = s => !s.layout || s.layout === state.corner;
   document.querySelectorAll('[data-slot]').forEach(li => {
     const s = slots.find(x => x.id === li.dataset.slot); if (!s) return;
+    li.hidden = !active(s);
     const cm = Math.round(s.w * 100);
-    const dims = s.kind === 'wall' ? `${cm} × 60` : s.type === 'dr3x2' ? '2 × 40 × 85' : `${cm} × 85`;
+    const dims = s.dims || (s.kind === 'wall' ? `${cm} × 60` : s.type === 'dr3x2' ? '2 × 40 × 85' : `${cm} × 85`);
     li.className = s.type !== s.quote ? 'vq' : '';
-    li.innerHTML = `<span>${TYPES[s.type].name}, ${s.where}</span><span>${dims}</span>`;
+    li.innerHTML = `<span>${slotCode(s)} · ${TYPES[s.type].name}, ${s.where}</span><span>${dims}</span>`;
   });
-  const diff = slots.filter(s => s.type !== s.quote), pn = document.getElementById('priceNote');
+  document.getElementById('w60row').firstElementChild.textContent = `Górna 2 drzwi ×${state.corner === 'l90' ? 2 : 3}`;
+  const diff = slots.filter(s => active(s) && s.type !== s.quote), pn = document.getElementById('priceNote');
   pn.hidden = !diff.length;
-  pn.innerHTML = 'Inaczej niż w wycenie (cenę potwierdzić w hurtowni): ' + diff.map(s => `<b>${slotCode(s)} ${s.where} → ${TYPES[s.type].name}</b>`).join('; ') + '.';
+  pn.innerHTML = 'Inaczej niż w wycenie (cenę potwierdzić w hurtowni): ' + diff.map(s => `<b>${slotCode(s)} ${s.where} → ${TYPES[s.type].name}${s.quote ? '' : ' (nowa)'}</b>`).join('; ') + (state.corner === 'l90' ? '; bez D40, D60 z szufladami i jednej W60 z wyceny' : '') + '.';
   const b0 = slots.find(s => s.id === 'b0');
-  document.getElementById('noteCorner').textContent = {
+  document.getElementById('noteCorner').textContent = state.corner === 'l90'
+    ? 'Narożna L 90 × 90 z zestawu Danka (w sklepie hurtowni 699 zł, ale zielony front tylko z białym korpusem; z korpusem Wotan ok. 920 zł z blatem na BRW.pl i w Leroy Merlin). Ramię przy oknie sięga ok. 96 cm od ściany ze zlewem, a kaloryfer w modelu zaczyna się ok. 84 cm od niej – czerwony klocek pokazuje kolizję ok. 12 cm, więc przed zamówieniem trzeba zmierzyć. Płyta i okapowa przesuwają się o 30 cm, a między płytą a zlewem zostaje miejsce na D30 i W30 (dostępność w Blande do sprawdzenia).'
+    : {
     d1L: 'D40 w narożniku stoi 26 cm od ściany z oknem i ma jedne drzwi z zawiasem od strony okna. Otwarte skrzydło chowa się w wolnym miejscu pod przedłużonym blatem, a do środka sięgasz od strony płyty. Kaloryfer nie przeszkadza.',
     d1R: 'D40 w narożniku stoi 26 cm od ściany z oknem i ma jedne drzwi z zawiasem od strony płyty. Do środka sięga się wtedy od strony narożnika, spod przedłużonego blatu, więc wygodniej jest z zawiasem od strony okna.',
     dr3: 'D40 z 3 szufladami stoi w narożniku, 26 cm od ściany z oknem. Szuflady wysuwają się pod przedłużony blat, więc otwiera się je trudniej. Kaloryfer im nie przeszkadza.',
