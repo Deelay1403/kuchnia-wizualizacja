@@ -165,7 +165,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
   <aside id="panel" class="collapsed" aria-label="Ustawienia wizualizacji">
     <div class="head">
       <div>
-        <div class="eyebrow">Kuchnia 3,08 × 2,78 m · Blande · wersja 11</div>
+        <div class="eyebrow">Kuchnia 3,08 × 2,78 m · Blande · wersja 12</div>
         <h1>Butelkowa zieleń z dębem</h1>
       </div>
       <button class="btn" id="toggle" aria-expanded="false">Opcje</button>
@@ -185,6 +185,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
           <button id="hood-none" data-v="none" aria-pressed="true">Góra w linii</button>
           <button id="hood-low" data-v="low" aria-pressed="false">Dół w linii</button>
           <button id="hood-cab" data-v="cab" aria-pressed="false">Szafka 60 × 24</button>
+          <button id="hood-h60" data-v="h60" aria-pressed="false">Wysoka 60 cm</button>
         </div></div>
       <div class="row"><span class="lab">Blat</span>
         <div class="seg" data-key="top">
@@ -243,6 +244,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
           <li data-slot="ku0"></li>
           <li data-slot="ku1"></li>
           <li class="chg"><span>Okapowa z okapem do zabudowy</span><span>60 × 36</span></li>
+          <li class="chg"><span>Opcja: okapowa wysoka jak pozostałe</span><span>60 × 60</span></li>
           <li class="chg"><span>Opcja: szafka nad okapem (zapytać)</span><span>60 × 24</span></li>
           <li id="w60row"><span>Górna 2 drzwi ×3</span><span>60 × 60</span></li>
         </ul></div>
@@ -268,7 +270,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px}
         <li>Zlew i zmywarka zostają przy łuku, blisko dzisiejszych podejść wody.</li>
         <li>Okno, parapet i kaloryfer są przeniesione ze zdjęcia, w proporcjach do ściany 2,78 m: okno ok. 1,75 × 1,40 m, parapet przez całą ścianę ok. 1,03 m nad podłogą. Warto to sprawdzić miarką.</li>
         <li>W blacie nad kaloryferem jest kratka przy samej ścianie, pod parapetem, żeby ciepło szło w stronę okna.</li>
-        <li>Okap to pochłaniacz (filtr węglowy) wbudowany w szafkę okapową 36 cm. Masz trzy ustawienia: „Góra w linii” (okap ok. 95 cm nad płytą, przerwa 24 cm pod szafką), „Dół w linii” (okap ok. 71 cm nad płytą, wolne 24 cm nad szafką) oraz „Szafka 60 × 24” (dół w linii i mała szafka nad nią, do potwierdzenia w sklepie).</li>
+        <li>Okap to pochłaniacz (filtr węglowy) wbudowany w szafkę okapową 36 cm. Masz cztery ustawienia: „Góra w linii” (okap ok. 95 cm nad płytą, przerwa 24 cm pod szafką), „Dół w linii” (okap ok. 71 cm nad płytą, wolne 24 cm nad szafką), „Szafka 60 × 24” (dół w linii i mała szafka nad nią, do potwierdzenia w sklepie) oraz „Wysoka 60 cm” (szafka okapowa 60 × 60 z dwojgiem drzwi, równa z pozostałymi górnymi, okap ok. 71 cm nad płytą; do potwierdzenia w hurtowni).</li>
       </ul>
     </details>
   </aside>
@@ -880,7 +882,7 @@ function dishwasher(g0, x){
   B(g, .594, .096, T, M.oakH, .001, 0, .42);
   label(g, 'Zmywarka do zabudowy + front 60 (z oferty)');
 }
-const hoodVariants = { none: [], low: [], cab: [] };
+const hoodVariants = { none: [], low: [], cab: [], h60: [] };
 function hoodInside(g){
   // okap do zabudowy (pochłaniacz) w dole szafki okapowej
   B(g, .56, .2, .26, M.steelD, .02, .03, .02);
@@ -900,6 +902,10 @@ function hoodCab(g0, x, text){
   const b = new THREE.Group(); g0.add(b); hoodVariants.cab.push(b); b.visible = false;
   const gb = wallCab(b, x, .60, h, 'flap', text, UB); hoodInside(gb); label(gb, text);
   wallCab(b, x, .60, UT - UB - h, 'flap', 'Szafka 60 × 24 nad okapem (opcja – zapytać w sklepie)', UB + h);
+  // wariant 4: szafka okapowa 60 cm jak pozostałe górne (2 drzwi), okap w jej dolnej części
+  const t = new THREE.Group(); g0.add(t); hoodVariants.h60.push(t); t.visible = false;
+  const t60 = 'W60 okapowa 60 cm (jak pozostałe) – okap wbudowany w dół szafki';
+  const gt = wallCab(t, x, .60, UT - UB, 'd2', t60, UB); hoodInside(gt); label(gt, t60);
 }
 function sinkSet(g, sx0, sx1, sz0, sz1){
   const y = TOP + WT, rim = .03;
@@ -1051,6 +1057,7 @@ function applyState(){
   hoodVariants.none.forEach(g => g.visible = state.hood === 'none');
   hoodVariants.cab.forEach(g => g.visible = state.hood === 'cab');
   hoodVariants.low.forEach(g => g.visible = state.hood === 'low');
+  hoodVariants.h60.forEach(g => g.visible = state.hood === 'h60');
   renderer.toneMappingExposure = eve ? 1.15 : 1.0;
 }
 const allMats = new Set();
